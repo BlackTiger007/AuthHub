@@ -1,20 +1,22 @@
-import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core';
+import { session, type Session } from './schema/session';
+import { user, type User } from './schema/user';
+import { log, type Log } from './schema/log';
+import { setting, type Setting } from './schema/setting';
 
-export const user = sqliteTable('user', {
-	id: text('id').primaryKey(),
-	age: integer('age'),
-	username: text('username').notNull().unique(),
-	passwordHash: text('password_hash').notNull()
-});
+export const schema = {
+	user,
+	session,
+	log,
+	setting
+};
 
-export const session = sqliteTable('session', {
-	id: text('id').primaryKey(),
-	userId: text('user_id')
-		.notNull()
-		.references(() => user.id),
-	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull()
-});
+export { user, session, log, setting };
 
-export type Session = typeof session.$inferSelect;
+export interface Schema {
+	User: User;
+	Session: Session;
+	Log: Log;
+	Setting: Setting;
+}
 
-export type User = typeof user.$inferSelect;
+export type { User, Session, Log, Setting };
