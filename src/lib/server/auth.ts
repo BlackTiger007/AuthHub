@@ -1,5 +1,5 @@
 import type { RequestEvent } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
+import { eq, getTableColumns } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
@@ -20,7 +20,8 @@ export async function createSession(token: string, userId: string) {
 	const session: table.Session = {
 		id: sessionId,
 		userId,
-		expiresAt: new Date(Date.now() + DAY_IN_MS * 30)
+		expiresAt: new Date(Date.now() + DAY_IN_MS * 7),
+		lastActiveAt: new Date()
 	};
 	await db.insert(table.session).values(session);
 	return session;
@@ -28,10 +29,13 @@ export async function createSession(token: string, userId: string) {
 
 export async function validateSessionToken(token: string) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+
+	const { passwordHash: _passwordHash, ...userColumns } = getTableColumns(table.user);
+
 	const [result] = await db
 		.select({
 			// Adjust user table here to tweak returned data
-			user: { id: table.user.id, username: table.user.username },
+			user: userColumns,
 			session: table.session
 		})
 		.from(table.session)
@@ -41,21 +45,42 @@ export async function validateSessionToken(token: string) {
 	if (!result) {
 		return { session: null, user: null };
 	}
+
 	const { session, user } = result;
 
-	const sessionExpired = Date.now() >= session.expiresAt.getTime();
-	if (sessionExpired) {
+	const now = Date.now();
+	const sessionExpires = session.expiresAt.getTime();
+	const lastActive = session.lastActiveAt?.getTime() ?? 0;
+
+	// Session abgelaufen → löschen
+	if (now >= sessionExpires) {
 		await db.delete(table.session).where(eq(table.session.id, session.id));
 		return { session: null, user: null };
 	}
 
-	const renewSession = Date.now() >= session.expiresAt.getTime() - DAY_IN_MS * 15;
-	if (renewSession) {
-		session.expiresAt = new Date(Date.now() + DAY_IN_MS * 30);
-		await db
-			.update(table.session)
-			.set({ expiresAt: session.expiresAt })
-			.where(eq(table.session.id, session.id));
+	// Bedingungen
+	const renewThreshold = DAY_IN_MS * 3; // 3 Tage vor Ablauf erneuern
+
+	// Letzte Aktivität älter als heute → aktualisieren
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+
+	const lastActiveDate = new Date(lastActive);
+	lastActiveDate.setHours(0, 0, 0, 0);
+
+	const shouldRenewSession = now >= sessionExpires - renewThreshold;
+	const shouldUpdateLastActive = lastActiveDate.getTime() < today.getTime();
+
+	if (shouldRenewSession || shouldUpdateLastActive) {
+		const updates: Partial<typeof table.session.$inferInsert> = {};
+		if (shouldRenewSession) updates.expiresAt = new Date(now + DAY_IN_MS * 7);
+		if (shouldUpdateLastActive) updates.lastActiveAt = new Date();
+
+		await db.update(table.session).set(updates).where(eq(table.session.id, session.id));
+
+		// Synchronisiere Änderungen im Speicher-Objekt
+		if (updates.expiresAt) session.expiresAt = updates.expiresAt;
+		if (updates.lastActiveAt) session.lastActiveAt = updates.lastActiveAt;
 	}
 
 	return { session, user };
