@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -8,7 +7,7 @@
 <main class="text-base-content flex grow flex-col items-center space-y-8 p-6">
 	<div class="flex w-full max-w-5xl items-center justify-between">
 		<h1 class="text-3xl font-bold">Audit Log Detail</h1>
-		<button class="btn btn-sm btn-outline" onclick={() => goto('/admin/audit-logs')}>Zurück</button>
+		<a href="/admin/audit-logs" class="btn btn-sm btn-outline">Zurück zur Übersicht</a>
 	</div>
 
 	<div class="card bg-base-200 w-full max-w-5xl shadow-lg">
