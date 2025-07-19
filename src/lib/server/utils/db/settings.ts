@@ -2,6 +2,7 @@ import * as AppSettings from '$lib/server/utils/settingsSchemas';
 import { db } from '$lib/server/db';
 import { schema } from '$lib/server/db/schema';
 import { z } from 'zod';
+import { settings } from '$lib/server/store.svelte';
 
 // 🎯 Alle Keys aus AppSettings, z.B. "SMTP", "Discord", ...
 const settingKeys = Object.keys(AppSettings) as (keyof typeof AppSettings)[];
@@ -15,22 +16,39 @@ export async function getSettings() {
 	const entries = await db.select().from(schema.setting);
 
 	// Wir füllen ein leeres Objekt im richtigen Typ
-	const parsed = {} as { -readonly [K in keyof SettingsMap]: SettingsMap[K] };
+	const parsed = {} as Record<keyof typeof AppSettings, unknown>;
 
 	for (const key of settingKeys) {
-		const schema = AppSettings[key];
+		const schemaZod = AppSettings[key];
 		const entry = entries.find((e) => e.key === key);
 
-		try {
-			// Wert parsen oder Default aus Schema nehmen
-			parsed[key] = schema.parse(entry?.value ?? {});
-		} catch (err) {
-			console.warn(`⚠️ Fehler beim Parsen von ${key}, verwende Default`, err);
-			parsed[key] = schema.parse({});
-		}
+		const parsedValue = schemaZod.parse(entry?.value ?? {});
+		parsed[key] = parsedValue;
 	}
 
-	return parsed;
+	return parsed as SettingsMap;
 }
 
-export const settings = await getSettings();
+/**
+ * Speichert die übergebenen Settings in der Datenbank.
+ * Jeder Bereich wird validiert und als JSON gespeichert.
+ *
+ * @param updatedSettings Ein vollständiges Settings-Objekt (z.B. aus dem Formular)
+ */
+export async function saveSettings() {
+	for (const key of settingKeys) {
+		const schemaZod = AppSettings[key];
+		const data = settings[key];
+
+		// Vor dem Speichern validieren
+		const parsed = schemaZod.parse(data);
+
+		await db
+			.insert(schema.setting)
+			.values({ key, value: parsed })
+			.onConflictDoUpdate({
+				target: schema.setting.key,
+				set: { value: parsed }
+			});
+	}
+}
