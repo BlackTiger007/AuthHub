@@ -1,6 +1,7 @@
 import { getRequestEvent } from '$app/server';
 import { encodeBase32LowerCase } from '@oslojs/encoding';
 import { redirect } from '@sveltejs/kit';
+import { settings } from '../store.svelte';
 
 /**
  * Erzwingt ein aktives Login, sonst Redirect zur Login-Seite.
@@ -43,13 +44,33 @@ export function validateUsername(username: unknown): username is string {
 }
 
 /**
- * Prüft ein Passwort auf Gültigkeit.
- * - Länge: 6 bis 255 Zeichen
+ * Prüft ein Passwort auf Gültigkeit gemäß den konfigurierten Einstellungen.
+ * - Mindestlänge
+ * - Enthaltene Zeichentypen (Groß-, Kleinbuchstaben, Zahlen, Symbole)
+ * - Ausschluss bestimmter Zeichen
  * @param password Zu prüfender Wert
  * @returns true wenn gültig, sonst false
  */
 export function validatePassword(password: unknown): password is string {
-	return typeof password === 'string' && password.length >= 6 && password.length <= 255;
+	if (typeof password !== 'string') return false;
+
+	const config = settings.Password;
+	console.log(config);
+
+	if (password.length < config.length || password.length > 255) return false;
+
+	if (config.exclude) {
+		for (const char of password) {
+			if (config.exclude.includes(char)) return false;
+		}
+	}
+
+	if (config.uppercase && !/[A-Z]/.test(password)) return false;
+	if (config.lowercase && !/[a-z]/.test(password)) return false;
+	if (config.numbers && !/\d/.test(password)) return false;
+	if (config.symbols && !/[ !"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/.test(password)) return false;
+
+	return true;
 }
 
 /**
