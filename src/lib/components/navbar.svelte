@@ -19,35 +19,16 @@
 			title: 'Authentifizierung',
 			items: [
 				{ label: 'Anwendungen', href: '/admin/applications' },
-				{ label: 'Anmeldeoberfläche', href: '/admin/' },
-				{ label: 'Multi-Faktor-Authentifizierung', href: '/admin/' },
-				{ label: 'Connectoren', href: '/admin/connectors' },
-				{ label: 'Sicherheit', href: '/admin/' }
-			]
-		},
-		{
-			title: 'Autorisierung',
-			items: [
-				{ label: 'API-Ressourcen', href: '/admin/' },
-				{ label: 'Rollen', href: '/admin/' },
-				{ label: 'Organisationsvorlage', href: '/admin/' }
+				{ label: 'Integrationen & Dienste', href: '/admin/integrations' }
 			]
 		},
 		{
 			title: 'Benutzer',
-			items: [
-				{ label: 'Organisationen', href: '/admin/' },
-				{ label: 'Benutzerverwaltung', href: '/admin/users' }
-			]
+			items: [{ label: 'Benutzerverwaltung', href: '/admin/users' }]
 		},
 		{
 			title: 'Entwickler',
-			items: [
-				{ label: 'Signierschlüssel', href: '/admin/' },
-				{ label: 'Benutzerdefiniertes JWT', href: '/admin/' },
-				{ label: 'Webhooks', href: '/admin/' },
-				{ label: 'Audit logs', href: '/admin/audit-logs' }
-			]
+			items: [{ label: 'Audit logs', href: '/admin/audit-logs' }]
 		}
 	];
 </script>
@@ -70,7 +51,7 @@
 		<li class="my-3"></li>
 
 		<li>
-			<form action="/?/logout" method="post" class="hover:bg-error">
+			<form action="/admin/?/logout" method="post" class="hover:bg-error">
 				<button>Abmelden</button>
 			</form>
 		</li>
