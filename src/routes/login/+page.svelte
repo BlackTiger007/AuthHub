@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { ActionData } from './$types';
+	import github from '$lib/SVG/github.svg';
+	import discord from '$lib/SVG/discord.svg';
 
 	let { form }: { form: ActionData } = $props();
 </script>
@@ -84,15 +86,15 @@
 
 		<!-- Alternative Auth -->
 		<div class="flex flex-col gap-2 px-6 pb-6">
-			<button type="button" class="btn btn-outline flex items-center gap-3">
-				<!-- <img src="/icons/discord.svg" alt="Discord" class="h-5 w-5" /> -->
+			<a href="/api/auth/discord" class="btn btn-outline flex items-center gap-3">
+				<img src={discord} alt="Discord" class="size-6" />
 				<span>Mit Discord anmelden</span>
-			</button>
+			</a>
 
-			<button type="button" class="btn btn-outline flex items-center gap-3">
-				<!-- <img src="/icons/google.svg" alt="Google" class="h-5 w-5" /> -->
+			<a href="/api/auth/github" class="btn btn-outline flex items-center gap-3">
+				<img src={github} alt="Google" class="size-6" />
 				<span>Mit Google anmelden</span>
-			</button>
+			</a>
 		</div>
 	</div>
 </main>
