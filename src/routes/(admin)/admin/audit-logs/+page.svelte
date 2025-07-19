@@ -49,7 +49,7 @@
 	}
 </script>
 
-<main class="bg-base-300 text-base-content flex grow flex-col items-center space-y-10 p-6">
+<main class="text-base-content flex grow flex-col items-center space-y-10 p-6">
 	<h1 class="text-3xl font-bold">Audit Logs</h1>
 
 	<p>Anzeige der Audit-Logs von Authentifizierungs- und Systemereignissen.</p>

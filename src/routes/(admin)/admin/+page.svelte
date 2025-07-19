@@ -4,7 +4,7 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<main class="bg-base-300 text-base-content flex grow flex-col space-y-6 p-6">
+<main class="text-base-content flex grow flex-col space-y-6 p-6">
 	<h1 class="text-3xl font-bold">Dashboard</h1>
 	<p class="text-base-content/70">Verschaffe dir einen Überblick über die Leistung deiner App</p>
 

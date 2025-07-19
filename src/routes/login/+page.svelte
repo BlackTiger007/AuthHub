@@ -5,9 +5,7 @@
 	let { form }: { form: ActionData } = $props();
 </script>
 
-<main
-	class="bg-base-300 text-base-content flex min-h-screen flex-col items-center justify-center p-4"
->
+<main class="text-base-content flex min-h-screen flex-col items-center justify-center p-4">
 	<div class="card bg-base-100 w-full max-w-md shadow-2xl">
 		<form class="card-body space-y-4 pb-0" method="post" action="?/login" use:enhance>
 			<!-- Logo -->

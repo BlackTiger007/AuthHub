@@ -14,7 +14,7 @@
 		</div>
 
 		<!-- Seiteninhalt -->
-		<div class="bg-base-300 flex min-h-screen flex-col">
+		<div class="flex min-h-screen flex-col">
 			{@render children?.()}
 		</div>
 	</div>
