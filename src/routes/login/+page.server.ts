@@ -3,11 +3,11 @@ import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import * as auth from '$lib/server/auth';
 import { db } from '$lib/server/db';
-import * as table from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 import { validateEmail, validatePassword, validateUsername } from '$lib/server/utils/auth';
 import { writeLog } from '$lib/server/utils/db/log';
 import { LogEvent } from '$lib/utils/events';
+import { schema } from '$lib/server/db/schema';
 
 export const load: PageServerLoad = async (event) => {
 	if (event.locals.user) {
@@ -37,7 +37,7 @@ export const actions: Actions = {
 			return fail(400, { message: 'Invalid password (min 6, max 255 characters)' });
 		}
 
-		const results = await db.select().from(table.user).where(eq(table.user.email, email));
+		const results = await db.select().from(schema.user).where(eq(schema.user.email, email));
 
 		const existingUser = results.at(0);
 		if (!existingUser) {
@@ -59,9 +59,9 @@ export const actions: Actions = {
 		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 		await db
-			.update(table.user)
+			.update(schema.user)
 			.set({ lastLogin: new Date() })
-			.where(eq(table.user.id, existingUser.id));
+			.where(eq(schema.user.id, existingUser.id));
 
 		await writeLog(event, LogEvent.UserLogin, { userId: existingUser.id });
 
