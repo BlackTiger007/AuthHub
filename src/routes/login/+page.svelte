@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { ActionData } from './$types';
+	import type { PageProps } from './$types';
 	import github from '$lib/SVG/github.svg';
 	import discord from '$lib/SVG/discord.svg';
 
-	let { form }: { form: ActionData } = $props();
+	let { data, form }: PageProps = $props();
 </script>
 
 <main class="text-base-content flex min-h-screen flex-col items-center justify-center p-4">
@@ -86,15 +86,19 @@
 
 		<!-- Alternative Auth -->
 		<div class="flex flex-col gap-2 px-6 pb-6">
-			<a href="/api/auth/discord" class="btn btn-outline flex items-center gap-3">
-				<img src={discord} alt="Discord" class="size-6" />
-				<span>Mit Discord anmelden</span>
-			</a>
+			{#if data.discord}
+				<a href="/login/discord" class="btn btn-outline flex items-center gap-3">
+					<img src={discord} alt="Discord" class="size-6" />
+					<span>Mit Discord anmelden</span>
+				</a>
+			{/if}
 
-			<a href="/api/auth/github" class="btn btn-outline flex items-center gap-3">
-				<img src={github} alt="Google" class="size-6" />
-				<span>Mit Google anmelden</span>
-			</a>
+			{#if data.github}
+				<a href="/login/github" class="btn btn-outline flex items-center gap-3">
+					<img src={github} alt="Github" class="size-6" />
+					<span>Mit Github anmelden</span>
+				</a>
+			{/if}
 		</div>
 	</div>
 </main>

@@ -8,12 +8,21 @@ import { validateEmail, validatePassword, validateUsername } from '$lib/server/u
 import { writeLog } from '$lib/server/utils/db/log';
 import { LogEvent } from '$lib/utils/events';
 import { schema } from '$lib/server/db/schema';
+import { settings } from '$lib/server/store.svelte';
 
 export const load: PageServerLoad = async (event) => {
-	if (event.locals.user) {
+	if (event.locals.session !== null && event.locals.user !== null) {
 		return redirect(302, '/');
 	}
-	return {};
+
+	const discord =
+		settings.Discord.clientID &&
+		settings.Discord.clientSecret &&
+		settings.Discord.scopes.length > 0;
+	const github =
+		settings.GitHub.clientID && settings.GitHub.clientSecret && settings.GitHub.scopes.length > 0;
+
+	return { discord, github };
 };
 
 export const actions: Actions = {
@@ -40,8 +49,16 @@ export const actions: Actions = {
 		const results = await db.select().from(schema.user).where(eq(schema.user.email, email));
 
 		const existingUser = results.at(0);
+
 		if (!existingUser) {
 			return fail(400, { message: 'Incorrect email or password' });
+		}
+
+		if (existingUser.passwordHash === null) {
+			return fail(400, {
+				message:
+					'This account was created via an external provider (e.g., Discord) and does not have a password. Please sign in using the respective provider.'
+			});
 		}
 
 		const validPassword = await verify(existingUser.passwordHash, password, {
