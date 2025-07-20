@@ -184,7 +184,6 @@ export const actions = {
 				message: z.treeifyError(parseResult.error)
 			});
 		}
-		console.log(parseResult.data);
 
 		Object.assign(settings.SMTP, parseResult.data);
 
@@ -204,8 +203,6 @@ export const actions = {
 		if (!testEmail) {
 			fail(400, { form: 'smtpTest', message: 'Keine E-Mail angegeben' });
 		}
-
-		console.log({ testEmail });
 
 		return { success: true, form: 'smtpTest' };
 	},

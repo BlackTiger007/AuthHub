@@ -55,7 +55,6 @@ export function validatePassword(password: unknown): password is string {
 	if (typeof password !== 'string') return false;
 
 	const config = settings.Password;
-	console.log(config);
 
 	if (password.length < config.length || password.length > 255) return false;
 
