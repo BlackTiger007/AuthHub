@@ -150,11 +150,14 @@
 	<div class="card bg-base-200 w-full max-w-5xl shadow-lg">
 		<div class="card-body space-y-4">
 			<h2 class="card-title text-xl">Verbundene Authentifizierungen</h2>
-			{#if data.user.connectors?.length > 0}
+			{#if data.user.discordId || data.user.githubId}
 				<ul class="list-disc pl-4">
-					{#each data.user.connectors as connector}
-						<li>{connector.provider} ({formatDate(connector.createdAt)})</li>
-					{/each}
+					{#if data.user.discordId}
+						<li>Discord</li>
+					{/if}
+					{#if data.user.githubId}
+						<li>GitHub</li>
+					{/if}
 				</ul>
 			{:else}
 				<p>Keine verbundenen Authentifizierungen gefunden.</p>
