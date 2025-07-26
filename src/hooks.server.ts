@@ -1,26 +1,53 @@
+import { RefillingTokenBucket } from '$lib/server/utils/rate-limit';
+import {
+	validateSessionToken,
+	setSessionTokenCookie,
+	deleteSessionTokenCookie
+} from '$lib/server/utils/session';
+import { sequence } from '@sveltejs/kit/hooks';
+
 import type { Handle } from '@sveltejs/kit';
-import * as auth from '$lib/server/auth';
 
-const handleAuth: Handle = async ({ event, resolve }) => {
-	const sessionToken = event.cookies.get(auth.sessionCookieName);
+const bucket = new RefillingTokenBucket<string>(100, 1);
 
-	if (!sessionToken) {
+const rateLimitHandle: Handle = async ({ event, resolve }) => {
+	// Note: Assumes X-Forwarded-For will always be defined.
+	const clientIP = event.request.headers.get('X-Forwarded-For');
+	if (clientIP === null) {
+		return resolve(event);
+	}
+	let cost: number;
+	if (event.request.method === 'GET' || event.request.method === 'OPTIONS') {
+		cost = 1;
+	} else {
+		cost = 3;
+	}
+	if (!bucket.consume(clientIP, cost)) {
+		return new Response('Too many requests', {
+			status: 429
+		});
+	}
+	return resolve(event);
+};
+
+const authHandle: Handle = async ({ event, resolve }) => {
+	const token = event.cookies.get('session') ?? null;
+	if (token === null) {
 		event.locals.user = null;
 		event.locals.session = null;
 		return resolve(event);
 	}
 
-	const { session, user } = await auth.validateSessionToken(sessionToken);
-
-	if (session) {
-		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
+	const { session, user } = await validateSessionToken(token);
+	if (session !== null) {
+		setSessionTokenCookie(event, token, session.expiresAt);
 	} else {
-		auth.deleteSessionTokenCookie(event);
+		deleteSessionTokenCookie(event);
 	}
 
-	event.locals.user = user;
 	event.locals.session = session;
+	event.locals.user = user;
 	return resolve(event);
 };
 
-export const handle: Handle = handleAuth;
+export const handle = sequence(rateLimitHandle, authHandle);
