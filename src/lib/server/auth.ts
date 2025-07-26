@@ -21,6 +21,7 @@ export async function createSession(token: string, userId: string) {
 		id: sessionId,
 		userId,
 		expiresAt: new Date(Date.now() + DAY_IN_MS * 7),
+		twoFactorVerified: false,
 		lastActiveAt: new Date()
 	};
 	await db.insert(table.session).values(session);
