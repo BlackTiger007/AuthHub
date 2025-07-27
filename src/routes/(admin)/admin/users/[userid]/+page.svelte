@@ -40,7 +40,7 @@
 				</p>
 				<p>
 					<strong>Status:</strong>
-					{#if data.user.verified}
+					{#if data.user.emailVerified}
 						<span class="badge badge-success">Verifiziert</span>
 					{:else}
 						<span class="badge badge-warning">Nicht verifiziert</span>
@@ -132,8 +132,8 @@
 
 			<!-- Benutzer verifizieren -->
 			<form action="?/verify" method="post" use:enhance>
-				<button class="btn btn-primary" disabled={data.user.verified}>
-					{data.user.verified ? 'Bereits verifiziert' : 'Benutzer verifizieren'}
+				<button class="btn btn-primary" disabled={data.user.emailVerified}>
+					{data.user.emailVerified ? 'Bereits verifiziert' : 'Benutzer verifizieren'}
 				</button>
 				{#if form?.form === 'verify'}
 					{#if form?.success}
