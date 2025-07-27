@@ -132,6 +132,36 @@
 		<a href="/2fa/security-key/register" class="btn btn-outline mt-4 w-full">Hinzufügen</a>
 	</section>
 
+	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
+		<h2>OAuth Apps</h2>
+		<p class="text-base-content/70 mb-4 text-sm">
+			OAuth-Verknüpfungen ermöglichen den sicheren Login über externe Dienste wie GitHub oder
+			Discord.
+		</p>
+		<ul class="space-y-3">
+			{#if data.user.github}
+				<li class="bg-base-200 flex items-center justify-between rounded-md p-3">
+					<p class="font-medium">GitHub</p>
+					<form method="post" use:enhance action="?/delete_passkey">
+						<input type="hidden" name="auth_name" value="github" />
+						<button type="submit" class="btn btn-sm btn-error">Löschen</button>
+					</form>
+				</li>
+			{/if}
+
+			{#if data.user.discord}
+				<li class="bg-base-200 flex items-center justify-between rounded-md p-3">
+					<p class="font-medium">Discord</p>
+					<form method="post" use:enhance action="?/delete_passkey">
+						<input type="hidden" name="auth_name" value="discord" />
+						<button type="submit" class="btn btn-sm btn-error">Löschen</button>
+					</form>
+				</li>
+			{/if}
+		</ul>
+		<a href="/2fa/passkey/register" class="btn btn-outline mt-4 w-full">Hinzufügen</a>
+	</section>
+
 	{#if data.recoveryCode !== null}
 		<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
 			<h2 class="text-xl font-semibold">Recovery-Code</h2>
