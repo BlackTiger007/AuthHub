@@ -16,7 +16,7 @@
 	<h1 class="text-center text-3xl font-bold">Einstellungen</h1>
 
 	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
-		<h2 class="text-xl font-semibold">E-Mail aktualisieren</h2>
+		<h2>E-Mail aktualisieren</h2>
 		<p>Aktuelle E-Mail: <span class="font-mono">{data.user.email}</span></p>
 
 		<form method="post" use:enhance action="?/update_email" class="flex flex-col gap-4" novalidate>
@@ -39,7 +39,7 @@
 	</section>
 
 	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
-		<h2 class="text-xl font-semibold">Passwort aktualisieren</h2>
+		<h2>Passwort aktualisieren</h2>
 
 		<form
 			method="post"
@@ -80,7 +80,7 @@
 	</section>
 
 	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
-		<h2 class="text-xl font-semibold">Authenticator-App</h2>
+		<h2>Authenticator-App</h2>
 		{#if data.user.registeredTOTP}
 			<div class="flex flex-col gap-2">
 				<a href="/2fa/totp/setup" class="btn btn-outline w-full">TOTP aktualisieren</a>
@@ -94,7 +94,7 @@
 	</section>
 
 	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
-		<h2 class="text-xl font-semibold">Passkeys</h2>
+		<h2>Passkeys</h2>
 		<p class="text-base-content/70 mb-4 text-sm">
 			Passkeys sind WebAuthn-Zugangsdaten, die Ihre Identität per Gerät bestätigen.
 		</p>
@@ -113,7 +113,7 @@
 	</section>
 
 	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
-		<h2 class="text-xl font-semibold">Sicherheitsschlüssel</h2>
+		<h2>Sicherheitsschlüssel</h2>
 		<p class="text-base-content/70 mb-4 text-sm">
 			Sicherheitsschlüssel sind WebAuthn-Zugangsdaten, die ausschließlich für die
 			Zwei-Faktor-Authentifizierung verwendet werden.
@@ -164,7 +164,7 @@
 
 	{#if data.recoveryCode !== null}
 		<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
-			<h2 class="text-xl font-semibold">Recovery-Code</h2>
+			<h2>Recovery-Code</h2>
 			<p class="bg-base-200 rounded p-3 font-mono break-words select-all">{data.recoveryCode}</p>
 			<form method="post" use:enhance action="?/regenerate_recovery_code" class="mt-4">
 				<button type="submit" class="btn btn-warning w-full"> Neuen Code generieren </button>
