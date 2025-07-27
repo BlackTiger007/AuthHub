@@ -106,7 +106,7 @@
 				<p class="text-error text-center" aria-live="polite">{form.message}</p>
 			{/if}
 
-			<a href="/signup" class="link link-hover text-primary text-center">
+			<a href="/register" class="link link-hover text-primary text-center">
 				Noch kein Konto? Jetzt registrieren
 			</a>
 		</form>
