@@ -6,7 +6,6 @@ import { ArcticFetchError, OAuth2RequestError, type OAuth2Tokens } from 'arctic'
 import type { RequestEvent } from './$types';
 import { schema } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { generateId } from '$lib/server/utils/auth';
 import { eq } from 'drizzle-orm';
 
 export async function GET(event: RequestEvent): Promise<Response> {
@@ -15,14 +14,10 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const state = event.url.searchParams.get('state');
 
 	if (storedState === null || code === null || state === null) {
-		return new Response('Please restart the process.', {
-			status: 400
-		});
+		return new Response('Please restart the process.', { status: 400 });
 	}
 	if (storedState !== state) {
-		return new Response('Please restart the process.', {
-			status: 400
-		});
+		return new Response('Please restart the process.', { status: 400 });
 	}
 
 	let tokens: OAuth2Tokens;
@@ -36,9 +31,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			console.log('Failed to call `fetch()`');
 		}
 		console.error(e);
-		return new Response('Please restart the process.', {
-			status: 400
-		});
+		return new Response('Please restart the process.', { status: 400 });
 	}
 
 	const discordAccessToken = tokens.accessToken();
@@ -50,106 +43,59 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const userParser = new ObjectParser(userResult);
 
 	const discordUserId = userParser.getString('id');
-	const username = userParser.getString('username');
 
-	const existingUser = getUserFromDiscordId(discordUserId);
-	if (existingUser !== null) {
-		const sessionToken = generateSessionToken();
-		const session = await createSession(sessionToken, existingUser.id);
-		setSessionTokenCookie(event, sessionToken, session.expiresAt);
+	const existingUserByDiscordId = getUserFromDiscordId(discordUserId);
+	if (existingUserByDiscordId !== null) {
+		return createLoginSession(event, existingUserByDiscordId.id);
+	}
+
+	// Prüfe, ob E-Mail verifiziert und vorhanden ist
+	const email = userParser.getString('email');
+	if (!userParser.getBoolean('verified') || !email) {
+		return new Response('Please verify your Discord email address.', { status: 400 });
+	}
+
+	const existingUserByEmail = await getUserByEmail(email);
+	if (existingUserByEmail !== null) {
+		// User mit E-Mail vorhanden, aber Discord nicht verknüpft → Login-Seite (evtl. Info-Parameter)
 		return new Response(null, {
 			status: 302,
 			headers: {
-				Location: '/'
+				Location: '/login'
 			}
 		});
 	}
 
-	const email = userParser.getString('email');
-
-	if (!userParser.getBoolean('verified')) {
-		return new Response('Please verify your Discord email address.', {
-			status: 400
-		});
-	}
-
-	let userId: string;
-	try {
-		userId = await createUser(discordUserId, email, username);
-	} catch (err) {
-		if (err instanceof Response && err.status === 400) {
-			// Versuch: Gibt es einen User mit dieser E-Mail?
-			const existing = await getUserByEmail(email);
-
-			if (!existing) {
-				return err;
-			}
-
-			// Verknüpfe den bestehenden Account mit Discord
-			await db
-				.update(schema.user)
-				.set({
-					discordId: discordUserId,
-					updatedAt: new Date(),
-					lastLogin: new Date()
-				})
-				.where(eq(schema.user.id, existing.id));
-
-			userId = existing.id;
-		} else {
-			throw err;
+	// Weder Discord-ID noch E-Mail existieren → Registrierung
+	return new Response(null, {
+		status: 302,
+		headers: {
+			Location: '/register'
 		}
-	}
+	});
+}
 
+function getUserFromDiscordId(discordId: string) {
+	const user = db.select().from(schema.user).where(eq(schema.user.discordId, discordId)).get();
+	return user ?? null;
+}
+
+async function getUserByEmail(email: string) {
+	const user = db.select().from(schema.user).where(eq(schema.user.email, email)).get();
+	return user ?? null;
+}
+
+async function createLoginSession(event: RequestEvent, userId: string) {
 	const sessionToken = generateSessionToken();
 	const session = await createSession(sessionToken, userId);
 	setSessionTokenCookie(event, sessionToken, session.expiresAt);
+
 	return new Response(null, {
 		status: 302,
 		headers: {
 			Location: '/'
 		}
 	});
-}
-
-async function createUser(discordId: string, email: string, username: string) {
-	const userId = generateId();
-
-	try {
-		await db.insert(schema.user).values({
-			id: userId,
-			username,
-			email,
-			discordId: discordId,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-			lastLogin: new Date()
-		});
-	} catch (error) {
-		if (error instanceof Error && error.message.includes('UNIQUE constraint failed')) {
-			throw new Response('Username or email already exists.', { status: 400 });
-		}
-		console.log('new user error: ', error);
-
-		throw error;
-	}
-	return userId;
-}
-
-function getUserFromDiscordId(discordId: string) {
-	const user = db.select().from(schema.user).where(eq(schema.user.discordId, discordId)).get();
-
-	if (!user || user === null) {
-		return null;
-	}
-
-	return user;
-}
-
-async function getUserByEmail(email: string) {
-	const user = db.select().from(schema.user).where(eq(schema.user.email, email)).get();
-
-	return user ?? null;
 }
 
 type discordUser = {
