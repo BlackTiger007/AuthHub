@@ -6,7 +6,6 @@ import type { OAuth2Tokens } from 'arctic';
 import type { RequestEvent } from './$types';
 import { schema } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { generateId } from '$lib/server/utils/auth';
 import { eq } from 'drizzle-orm';
 
 export async function GET(event: RequestEvent): Promise<Response> {
@@ -15,23 +14,17 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const state = event.url.searchParams.get('state');
 
 	if (storedState === null || code === null || state === null) {
-		return new Response('Please restart the process.', {
-			status: 400
-		});
+		return new Response('Please restart the process.', { status: 400 });
 	}
 	if (storedState !== state) {
-		return new Response('Please restart the process.', {
-			status: 400
-		});
+		return new Response('Please restart the process.', { status: 400 });
 	}
 
 	let tokens: OAuth2Tokens;
 	try {
 		tokens = await github(event.url.origin).validateAuthorizationCode(code);
 	} catch {
-		return new Response('Please restart the process.', {
-			status: 400
-		});
+		return new Response('Please restart the process.', { status: 400 });
 	}
 
 	const githubAccessToken = tokens.accessToken();
@@ -43,30 +36,24 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const userParser = new ObjectParser(userResult);
 
 	const githubUserId = userParser.getNumber('id');
-	const username = userParser.getString('login');
 
-	const existingUser = getUserFromGitHubId(githubUserId);
-	if (existingUser !== null) {
-		const sessionToken = generateSessionToken();
-		const session = await createSession(sessionToken, existingUser.id);
-		setSessionTokenCookie(event, sessionToken, session.expiresAt);
-		return new Response(null, {
-			status: 302,
-			headers: {
-				Location: '/'
-			}
-		});
+	// Prüfe, ob User mit GitHub ID existiert
+	const userByGitHubId = getUserFromGitHubId(githubUserId);
+	if (userByGitHubId !== null) {
+		// User mit GitHub-ID gefunden → Login
+		return createLoginSession(event, userByGitHubId.id);
 	}
 
+	// GitHub-ID nicht gefunden → Prüfe ob E-Mail schon im System vorhanden ist
 	const emailListRequest = new Request('https://api.github.com/user/emails');
 	emailListRequest.headers.set('Authorization', `Bearer ${githubAccessToken}`);
 	const emailListResponse = await fetch(emailListRequest);
 	const emailListResult: unknown = await emailListResponse.json();
+
 	if (!Array.isArray(emailListResult) || emailListResult.length < 1) {
-		return new Response('Please restart the process.', {
-			status: 400
-		});
+		return new Response('Please restart the process.', { status: 400 });
 	}
+
 	let email: string | null = null;
 	for (const emailRecord of emailListResult) {
 		const emailParser = new ObjectParser(emailRecord);
@@ -74,91 +61,55 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		const verifiedEmail = emailParser.getBoolean('verified');
 		if (primaryEmail && verifiedEmail) {
 			email = emailParser.getString('email');
+			break;
 		}
 	}
+
 	if (email === null) {
-		return new Response('Please verify your GitHub email address.', {
-			status: 400
+		return new Response('Please verify your GitHub email address.', { status: 400 });
+	}
+
+	const existingUserByEmail = await getUserByEmail(email);
+	if (existingUserByEmail !== null) {
+		// E-Mail existiert, aber GitHub nicht verknüpft → Login-Seite (mit Info evtl.)
+		return new Response(null, {
+			status: 302,
+			headers: {
+				Location: '/login'
+			}
 		});
 	}
 
-	let userId: string;
-	try {
-		userId = await createUser(githubUserId, email, username);
-	} catch (err) {
-		if (err instanceof Response && err.status === 400) {
-			// Versuch: Gibt es einen User mit dieser E-Mail?
-			const existing = await getUserByEmail(email);
-
-			if (!existing) {
-				return err;
-			}
-
-			// Verknüpfe den bestehenden Account mit Discord
-			await db
-				.update(schema.user)
-				.set({
-					githubId: githubUserId,
-					updatedAt: new Date(),
-					lastLogin: new Date()
-				})
-				.where(eq(schema.user.id, existing.id));
-
-			userId = existing.id;
-		} else {
-			throw err;
+	// Weder GitHub-ID noch E-Mail existieren → Registrierung
+	return new Response(null, {
+		status: 302,
+		headers: {
+			Location: '/register'
 		}
-	}
+	});
+}
 
+function getUserFromGitHubId(githubId: number) {
+	const user = db.select().from(schema.user).where(eq(schema.user.githubId, githubId)).get();
+	return user ?? null;
+}
+
+async function getUserByEmail(email: string) {
+	const user = db.select().from(schema.user).where(eq(schema.user.email, email)).get();
+	return user ?? null;
+}
+
+async function createLoginSession(event: RequestEvent, userId: string) {
 	const sessionToken = generateSessionToken();
 	const session = await createSession(sessionToken, userId);
 	setSessionTokenCookie(event, sessionToken, session.expiresAt);
+
 	return new Response(null, {
 		status: 302,
 		headers: {
 			Location: '/'
 		}
 	});
-}
-
-async function createUser(githubId: number, email: string, username: string) {
-	const userId = generateId();
-
-	const user = {
-		id: userId,
-		username,
-		email,
-		githubId,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-		lastLogin: new Date()
-	};
-
-	try {
-		await db.insert(schema.user).values(user);
-	} catch (error) {
-		if (error instanceof Error && error.message.includes('UNIQUE constraint failed')) {
-			throw new Response('Username or email already exists.', { status: 400 });
-		}
-		throw error;
-	}
-	return userId;
-}
-
-function getUserFromGitHubId(githubId: number) {
-	const user = db.select().from(schema.user).where(eq(schema.user.githubId, githubId)).get();
-
-	if (!user || user === null) {
-		return null;
-	}
-
-	return user;
-}
-
-async function getUserByEmail(email: string) {
-	const user = db.select().from(schema.user).where(eq(schema.user.email, email)).get();
-
-	return user ?? null;
 }
 
 type githubUser = {
