@@ -6,6 +6,8 @@ export function publicUser(user: UserAuth) {
 		email: user.email,
 		username: user.username,
 		name: user.name,
+		github: !!user.githubId,
+		discord: !!user.discordId,
 		emailVerified: user.emailVerified,
 		registeredTOTP: user.registeredTOTP,
 		registeredSecurityKey: user.registeredSecurityKey,
