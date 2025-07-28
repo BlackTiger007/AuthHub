@@ -1,4 +1,4 @@
-import { discord } from '$lib/server/db/oauth';
+import { discord } from '$lib/server/utils/oauth';
 import { ObjectParser } from '@pilcrowjs/object-parser';
 import { createSession, generateSessionToken, setSessionTokenCookie } from '$lib/server/auth';
 

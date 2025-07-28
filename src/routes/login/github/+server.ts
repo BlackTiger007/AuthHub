@@ -1,4 +1,4 @@
-import { github } from '$lib/server/db/oauth';
+import { github } from '$lib/server/utils/oauth';
 import { settings } from '$lib/server/store.svelte.js';
 import { generateState } from 'arctic';
 
