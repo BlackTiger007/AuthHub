@@ -13,7 +13,7 @@
 				Wir haben einen 8-stelligen Code an <strong>{data.email}</strong> gesendet.
 			</p>
 
-			<form method="post" use:enhance class="flex flex-col gap-4" novalidate>
+			<form method="post" use:enhance class="flex flex-col gap-4">
 				<label for="form-verify-code" class="font-medium">Code</label>
 				<!-- svelte-ignore a11y_autofocus -->
 				<input

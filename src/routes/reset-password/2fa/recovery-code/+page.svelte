@@ -10,7 +10,7 @@
 		<div class="card-body space-y-6">
 			<h1 class="text-center text-2xl font-semibold">Recovery Code verwenden</h1>
 
-			<form method="post" use:enhance class="flex flex-col gap-4" novalidate>
+			<form method="post" use:enhance class="flex flex-col gap-4">
 				<label for="form-recovery-code-code" class="font-medium">Recovery Code</label>
 				<input
 					type="text"

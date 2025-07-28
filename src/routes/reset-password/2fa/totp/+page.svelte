@@ -11,7 +11,7 @@
 			<h1 class="text-center text-2xl font-semibold">Mit Authenticator-App anmelden</h1>
 			<p class="text-base-content/70 text-center text-sm">Geben Sie den Code aus Ihrer App ein.</p>
 
-			<form method="post" use:enhance class="flex flex-col gap-4" novalidate>
+			<form method="post" use:enhance class="flex flex-col gap-4">
 				<label for="form-totp-code" class="font-medium"> Code </label>
 				<!-- svelte-ignore a11y_autofocus -->
 				<input

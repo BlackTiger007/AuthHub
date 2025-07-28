@@ -10,7 +10,7 @@
 		<div class="card-body space-y-6">
 			<h1 class="text-center text-2xl font-semibold">Passwort vergessen?</h1>
 
-			<form method="post" use:enhance class="flex flex-col gap-4" novalidate>
+			<form method="post" use:enhance class="flex flex-col gap-4">
 				<label for="form-forgot-email" class="font-medium">E-Mail</label>
 				<!-- svelte-ignore a11y_autofocus -->
 				<input
