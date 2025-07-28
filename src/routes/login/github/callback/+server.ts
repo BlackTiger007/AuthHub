@@ -1,12 +1,16 @@
 import { github } from '$lib/server/utils/oauth';
 import { ObjectParser } from '@pilcrowjs/object-parser';
-import { createSession, generateSessionToken, setSessionTokenCookie } from '$lib/server/auth';
 
 import type { OAuth2Tokens } from 'arctic';
 import type { RequestEvent } from './$types';
 import { schema } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
+import {
+	createSession,
+	generateSessionToken,
+	setSessionTokenCookie
+} from '$lib/server/utils/session';
 
 export async function GET(event: RequestEvent): Promise<Response> {
 	const storedState = event.cookies.get('github_oauth_state') ?? null;
@@ -101,7 +105,7 @@ async function getUserByEmail(email: string) {
 
 async function createLoginSession(event: RequestEvent, userId: string) {
 	const sessionToken = generateSessionToken();
-	const session = await createSession(sessionToken, userId);
+	const session = await createSession(sessionToken, userId, false);
 	setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 	return new Response(null, {
