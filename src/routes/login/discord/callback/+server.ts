@@ -1,12 +1,16 @@
 import { discord } from '$lib/server/utils/oauth';
 import { ObjectParser } from '@pilcrowjs/object-parser';
-import { createSession, generateSessionToken, setSessionTokenCookie } from '$lib/server/auth';
 
 import { ArcticFetchError, OAuth2RequestError, type OAuth2Tokens } from 'arctic';
 import type { RequestEvent } from './$types';
 import { schema } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
+import {
+	createSession,
+	generateSessionToken,
+	setSessionTokenCookie
+} from '$lib/server/utils/session';
 
 export async function GET(event: RequestEvent): Promise<Response> {
 	const storedState = event.cookies.get('discord_oauth_state') ?? null;
@@ -55,9 +59,31 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		return new Response('Please verify your Discord email address.', { status: 400 });
 	}
 
-	const existingUserByEmail = await getUserByEmail(email);
+	const existingUserByEmail = getUserByEmail(email);
+
 	if (existingUserByEmail !== null) {
-		// User mit E-Mail vorhanden, aber Discord nicht verknüpft → Login-Seite (evtl. Info-Parameter)
+		const loggedInUser = event.locals.user;
+
+		if (
+			loggedInUser &&
+			loggedInUser.id === existingUserByEmail.id &&
+			loggedInUser.email === email
+		) {
+			// Benutzer ist eingeloggt und E-Mail passt → verknüpfe Discord-ID
+			await db
+				.update(schema.user)
+				.set({ discordId: discordUserId })
+				.where(eq(schema.user.id, loggedInUser.id));
+
+			return new Response(null, {
+				status: 302,
+				headers: {
+					Location: '/'
+				}
+			});
+		}
+
+		// Benutzer mit E-Mail existiert, aber nicht eingeloggt → Weiterleitung zum Login
 		return new Response(null, {
 			status: 302,
 			headers: {
@@ -80,14 +106,14 @@ function getUserFromDiscordId(discordId: string) {
 	return user ?? null;
 }
 
-async function getUserByEmail(email: string) {
+function getUserByEmail(email: string) {
 	const user = db.select().from(schema.user).where(eq(schema.user.email, email)).get();
 	return user ?? null;
 }
 
 async function createLoginSession(event: RequestEvent, userId: string) {
 	const sessionToken = generateSessionToken();
-	const session = await createSession(sessionToken, userId);
+	const session = await createSession(sessionToken, userId, false);
 	setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 	return new Response(null, {
