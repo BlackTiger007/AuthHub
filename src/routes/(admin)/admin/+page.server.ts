@@ -1,4 +1,4 @@
-import * as auth from '$lib/server/auth';
+import { deleteSessionTokenCookie, invalidateSession } from '$lib/server/utils/session';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { requireLogin } from '$lib/server/utils/auth';
@@ -113,8 +113,8 @@ export const actions: Actions = {
 		if (!event.locals.session) {
 			return fail(401);
 		}
-		await auth.invalidateSession(event.locals.session.id);
-		auth.deleteSessionTokenCookie(event);
+		await invalidateSession(event.locals.session.id);
+		deleteSessionTokenCookie(event);
 
 		await writeLog(event, LogEvent.UserLogout);
 
