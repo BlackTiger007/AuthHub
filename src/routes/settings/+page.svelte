@@ -19,7 +19,7 @@
 		<h2>E-Mail aktualisieren</h2>
 		<p>Aktuelle E-Mail: <span class="font-mono">{data.user.email}</span></p>
 
-		<form method="post" use:enhance action="?/update_email" class="flex flex-col gap-4" novalidate>
+		<form method="post" use:enhance action="?/update_email" class="flex flex-col gap-4">
 			<label for="form-email-email" class="font-medium">Neue E-Mail</label>
 			<input
 				type="email"
@@ -41,13 +41,7 @@
 	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
 		<h2>Passwort aktualisieren</h2>
 
-		<form
-			method="post"
-			use:enhance
-			action="?/update_password"
-			class="flex flex-col gap-4"
-			novalidate
-		>
+		<form method="post" use:enhance action="?/update_password" class="flex flex-col gap-4">
 			<label for="form-password-current" class="font-medium">Aktuelles Passwort</label>
 			<input
 				type="password"
@@ -139,27 +133,30 @@
 			Discord.
 		</p>
 		<ul class="space-y-3">
-			{#if data.user.github}
-				<li class="bg-base-200 flex items-center justify-between rounded-md p-3">
-					<p class="font-medium">GitHub</p>
-					<form method="post" use:enhance action="?/delete_passkey">
-						<input type="hidden" name="auth_name" value="github" />
+			<li class="bg-base-200 flex items-center justify-between rounded-md p-3">
+				<p class="font-medium">GitHub</p>
+				<form method="post" use:enhance action="?/delete_passkey">
+					<input type="hidden" name="auth_name" value="github" />
+					{#if data.user.github}
 						<button type="submit" class="btn btn-sm btn-error">Löschen</button>
-					</form>
-				</li>
-			{/if}
+					{:else}
+						<a href="/login/github" class="btn btn-outline w-full">OAuth-Verknüpfen</a>
+					{/if}
+				</form>
+			</li>
 
-			{#if data.user.discord}
-				<li class="bg-base-200 flex items-center justify-between rounded-md p-3">
-					<p class="font-medium">Discord</p>
-					<form method="post" use:enhance action="?/delete_passkey">
-						<input type="hidden" name="auth_name" value="discord" />
+			<li class="bg-base-200 flex items-center justify-between rounded-md p-3">
+				<p class="font-medium">Discord</p>
+				<form method="post" use:enhance action="?/delete_passkey">
+					<input type="hidden" name="auth_name" value="discord" />
+					{#if data.user.discord}
 						<button type="submit" class="btn btn-sm btn-error">Löschen</button>
-					</form>
-				</li>
-			{/if}
+					{:else}
+						<a href="/login/discord" class="btn btn-outline w-full">OAuth-Verknüpfen</a>
+					{/if}
+				</form>
+			</li>
 		</ul>
-		<a href="/2fa/passkey/register" class="btn btn-outline mt-4 w-full">Hinzufügen</a>
 	</section>
 
 	{#if data.recoveryCode !== null}
