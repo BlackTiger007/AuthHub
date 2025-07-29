@@ -16,5 +16,10 @@ export async function load(event: RequestEvent) {
 	) {
 		return redirect(302, '/');
 	}
-	return {};
+	return {
+		registered2FA: event.locals.user.registered2FA,
+		registeredTOTP: event.locals.user.registeredTOTP,
+		registeredPasskey: event.locals.user.registeredPasskey,
+		registeredSecurityKey: event.locals.user.registeredSecurityKey
+	};
 }
