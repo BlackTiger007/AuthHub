@@ -5,14 +5,12 @@
 
 	let { data, form }: PageProps = $props();
 
-	// Status für Feedbacktext
 	let copiedTarget: string | null = $state(null);
 
 	function copyToClipboard(url: string, id: string, button: HTMLButtonElement) {
 		navigator.clipboard.writeText(url).then(() => {
 			copiedTarget = id;
 			button.classList.add('bg-success');
-
 			setTimeout(() => {
 				copiedTarget = null;
 				button.classList.remove('bg-success');
@@ -24,40 +22,41 @@
 <main class="text-base-content flex grow flex-col items-center space-y-10 p-6">
 	<header class="space-y-2 text-center">
 		<h1 class="text-3xl font-bold">Integrationen & Dienste</h1>
-		<p>Richte Integrationen & Dienste ein, um passwortlose und Social-Anmeldung zu aktivieren</p>
+		<p>Aktiviere passwortlose Anmeldung oder OAuth-Dienste für dein Konto</p>
 	</header>
 
 	<!-- Authentifizierung -->
 	<section class="w-full max-w-5xl space-y-4">
 		<h2 class="text-lg font-semibold">🔐 Authentifizierung</h2>
-		<div class="flex flex-wrap justify-start gap-4">
+		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+			<!-- Discord -->
 			<Collapse title="Discord">
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Callback-URL</legend>
-					<div class="join">
-						<input
-							type="text"
-							class="input join-item"
-							value="{data.url}/api/auth/discord"
-							readonly
-							disabled
-						/>
-						<button
-							type="button"
-							class="btn join-item transition-colors duration-300"
-							onclick={(e) =>
-								copyToClipboard(
-									`${data.url}/api/auth/discord`,
-									'discord',
-									e.currentTarget as HTMLButtonElement
-								)}
-						>
-							{copiedTarget === 'discord' ? 'Kopiert!' : 'Kopieren'}
-						</button>
-					</div>
-				</fieldset>
+				<form action="?/discord" method="post" use:enhance class="space-y-4">
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">Callback-URL</legend>
+						<div class="join">
+							<input
+								type="text"
+								class="input join-item"
+								value={`${data.url}/login/discord/callback`}
+								readonly
+								disabled
+							/>
+							<button
+								type="button"
+								class="btn join-item transition-colors duration-300"
+								onclick={(e) =>
+									copyToClipboard(
+										`${data.url}/login/discord/callback`,
+										'discord',
+										e.currentTarget as HTMLButtonElement
+									)}
+							>
+								{copiedTarget === 'discord' ? 'Kopiert!' : 'Kopieren'}
+							</button>
+						</div>
+					</fieldset>
 
-				<form action="?/discord" method="post" use:enhance>
 					<fieldset class="fieldset">
 						<legend class="fieldset-legend">Client ID</legend>
 						<input
@@ -85,7 +84,7 @@
 					</fieldset>
 
 					<fieldset class="fieldset">
-						<legend class="fieldset-legend">Scope</legend>
+						<legend class="fieldset-legend">Scopes (optional)</legend>
 						<input
 							id="discord-scopes"
 							name="scopes"
@@ -93,51 +92,51 @@
 							class="input"
 							value={data.discord.scopes}
 						/>
-						<p class="label">Optional</p>
 					</fieldset>
 
 					{#if form?.form === 'discord'}
-						{#if form.success}
-							<p class="text-success">{form.message}</p>
-						{:else}
-							<p class="text-error">{JSON.stringify(form.message, null, 2)}</p>
-						{/if}
+						<p class={form.success ? 'text-success' : 'text-error'}>
+							{form.success ? form.message : JSON.stringify(form.message, null, 2)}
+						</p>
 					{/if}
 
-					<button type="submit" class="btn">Save</button>
-				</form>
-
-				<form action="?/deleteDiscord" method="post">
-					<button class="btn">Löschen</button>
-				</form>
-			</Collapse>
-			<Collapse title="GitHub">
-				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Callback-URL</legend>
-					<div class="join">
-						<input
-							type="text"
-							class="input join-item"
-							value="{data.url}/api/auth/github"
-							readonly
-							disabled
-						/>
-						<button
-							type="button"
-							class="btn join-item transition-colors duration-300"
-							onclick={(e) =>
-								copyToClipboard(
-									`${data.url}/api/auth/github`,
-									'github',
-									e.currentTarget as HTMLButtonElement
-								)}
-						>
-							{copiedTarget === 'github' ? 'Kopiert!' : 'Kopieren'}
+					<div class="flex gap-2">
+						<button type="submit" class="btn btn-primary">Speichern</button>
+						<button formaction="?/deleteDiscord" formmethod="post" class="btn btn-error">
+							Löschen
 						</button>
 					</div>
-				</fieldset>
+				</form>
+			</Collapse>
 
-				<form action="?/github" method="post" use:enhance>
+			<!-- GitHub -->
+			<Collapse title="GitHub">
+				<form action="?/github" method="post" use:enhance class="space-y-4">
+					<fieldset class="fieldset">
+						<legend class="fieldset-legend">Callback-URL</legend>
+						<div class="join">
+							<input
+								type="text"
+								class="input join-item"
+								value={`${data.url}/login/github/callback`}
+								readonly
+								disabled
+							/>
+							<button
+								type="button"
+								class="btn join-item transition-colors duration-300"
+								onclick={(e) =>
+									copyToClipboard(
+										`${data.url}/login/github/callback`,
+										'github',
+										e.currentTarget as HTMLButtonElement
+									)}
+							>
+								{copiedTarget === 'github' ? 'Kopiert!' : 'Kopieren'}
+							</button>
+						</div>
+					</fieldset>
+
 					<fieldset class="fieldset">
 						<legend class="fieldset-legend">Client ID</legend>
 						<input
@@ -163,7 +162,7 @@
 					</fieldset>
 
 					<fieldset class="fieldset">
-						<legend class="fieldset-legend">Scope</legend>
+						<legend class="fieldset-legend">Scopes (optional)</legend>
 						<input
 							id="github-scopes"
 							name="scopes"
@@ -171,113 +170,72 @@
 							class="input"
 							value={data.github.scopes}
 						/>
-						<p class="label">Optional</p>
 					</fieldset>
 
 					{#if form?.form === 'github'}
-						{#if form.success}
-							<p class="text-success">{form.message}</p>
-						{:else}
-							<p class="text-error">{JSON.stringify(form.message, null, 2)}</p>
-						{/if}
+						<p class={form.success ? 'text-success' : 'text-error'}>
+							{form.success ? form.message : JSON.stringify(form.message, null, 2)}
+						</p>
 					{/if}
 
-					<button type="submit" class="btn">Save</button>
-				</form>
-
-				<form action="?/deleteGithub" method="post">
-					<button class="btn">Löschen</button>
+					<div class="flex gap-2">
+						<button type="submit" class="btn btn-primary">Speichern</button>
+						<button formaction="?/deleteGithub" formmethod="post" class="btn btn-error">
+							Löschen
+						</button>
+					</div>
 				</form>
 			</Collapse>
 		</div>
 	</section>
 
-	<!-- Benachrichtigungen -->
 	<section class="w-full max-w-5xl space-y-4">
-		<h2 class="text-lg font-semibold">✉️ Benachrichtigungen</h2>
-		<Collapse title="SMTP">
-			<form action="?/smtp" method="post" use:enhance>
+		<h2 class="text-lg font-semibold">📨 Benachrichtigungen</h2>
+		<Collapse title="SMTP Einstellungen">
+			<form action="?/smtp" method="post" use:enhance class="space-y-4">
 				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Host</legend>
-					<input
-						id="smtp-host"
-						name="host"
-						type="text"
-						class="input"
-						value={data.smtp.host}
-						required
-					/>
+					<legend class="fieldset-legend">SMTP Host</legend>
+					<input type="text" name="host" class="input" value={data.smtp.host} required />
 				</fieldset>
-
 				<fieldset class="fieldset">
 					<legend class="fieldset-legend">Port</legend>
-					<input
-						id="smtp-port"
-						name="port"
-						type="number"
-						class="input"
-						min="0"
-						value={data.smtp.port}
-						required
-					/>
+					<input type="number" name="port" class="input" value={data.smtp.port} required />
 				</fieldset>
-
 				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Name</legend>
-					<input
-						id="smtp-username"
-						name="username"
-						type="email"
-						class="input"
-						value={data.smtp.username}
-						required
-					/>
+					<legend class="fieldset-legend">Benutzername</legend>
+					<input type="text" name="username" class="input" value={data.smtp.username} />
 				</fieldset>
-
 				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Password</legend>
-					<input
-						id="smtp-password"
-						name="password"
-						type="password"
-						class="input"
-						value={data.smtp.password}
-						required
-					/>
+					<legend class="fieldset-legend">Passwort</legend>
+					<input type="password" name="password" class="input" value={data.smtp.password} />
 				</fieldset>
-
 				<fieldset class="fieldset">
-					<legend class="fieldset-legend">From E-Mail</legend>
-					<input
-						id="smtp-from"
-						name="from"
-						type="email"
-						class="input"
-						value={data.smtp.from}
-						required
-					/>
+					<legend class="fieldset-legend">Absenderadresse (From)</legend>
+					<input type="email" name="from" class="input" value={data.smtp.from} required />
 				</fieldset>
-
 				<fieldset class="fieldset">
-					<legend class="fieldset-legend">To E-Mail</legend>
-					<input id="smtp-to" name="to" type="email" class="input" value={data.smtp.to} />
-					<p class="label">Optional</p>
+					<legend class="fieldset-legend">Antwortadresse (Reply-To)</legend>
+					<input type="email" name="to" class="input" value={data.smtp.to} />
+				</fieldset>
+				<fieldset class="fieldset">
+					<legend class="fieldset-legend">TLS verwenden</legend>
+					<input type="checkbox" name="secure" class="checkbox" checked={data.smtp.secure} />
 				</fieldset>
 
 				{#if form?.form === 'smtp'}
-					{#if form.success}
-						<p class="text-success">{form.message}</p>
-					{:else}
-						<p class="text-error">{JSON.stringify(form.message, null, 2)}</p>
-					{/if}
+					<p class={form.success ? 'text-success' : 'text-error'}>
+						{form.success ? form.message : JSON.stringify(form.message, null, 2)}
+					</p>
 				{/if}
 
-				<button type="submit" class="btn">Save</button>
+				<div class="flex gap-2">
+					<button type="submit" class="btn btn-primary">Speichern</button>
+					<button formaction="?/deleteSmtp" formmethod="post" class="btn btn-error">
+						Löschen
+					</button>
+				</div>
 			</form>
 
-			<form action="?/deleteSmtp" method="post" use:enhance>
-				<button class="btn">Löschen</button>
-			</form>
 			<form action="?/smtpTest" method="post" use:enhance>
 				<fieldset class="fieldset">
 					<legend class="fieldset-legend">Test E-Mail</legend>
@@ -285,11 +243,9 @@
 				</fieldset>
 
 				{#if form?.form === 'smtpTest'}
-					{#if form.success}
-						<p class="text-success">{form.message}</p>
-					{:else}
-						<p class="text-error">{JSON.stringify(form.message, null, 2)}</p>
-					{/if}
+					<p class={form.success ? 'text-success' : 'text-error'}>
+						{form.success ? form.message : JSON.stringify(form.message, null, 2)}
+					</p>
 				{/if}
 
 				<button type="submit" class="btn">Senden</button>
@@ -300,10 +256,11 @@
 	<!-- Sicherheit -->
 	<section class="w-full max-w-5xl space-y-4">
 		<h2 class="text-lg font-semibold">🛡️ Sicherheit</h2>
+
 		<Collapse title="Passwort-Richtlinien">
 			<form action="?/password" method="post" use:enhance>
 				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Passowrd länge</legend>
+					<legend class="fieldset-legend">Passwortlänge</legend>
 					<input
 						id="password-length"
 						name="length"
@@ -316,7 +273,7 @@
 				</fieldset>
 
 				<fieldset class="fieldset">
-					<legend class="fieldset-legend">lowercase</legend>
+					<legend class="fieldset-legend">Kleinbuchstaben erforderlich</legend>
 					<input
 						id="password-lowercase"
 						name="lowercase"
@@ -327,7 +284,7 @@
 				</fieldset>
 
 				<fieldset class="fieldset">
-					<legend class="fieldset-legend">numbers</legend>
+					<legend class="fieldset-legend">Zahlen erforderlich</legend>
 					<input
 						id="password-numbers"
 						name="numbers"
@@ -338,7 +295,7 @@
 				</fieldset>
 
 				<fieldset class="fieldset">
-					<legend class="fieldset-legend">symbols</legend>
+					<legend class="fieldset-legend">Sonderzeichen erforderlich</legend>
 					<input
 						id="password-symbols"
 						name="symbols"
@@ -349,7 +306,7 @@
 				</fieldset>
 
 				<fieldset class="fieldset">
-					<legend class="fieldset-legend">uppercase</legend>
+					<legend class="fieldset-legend">Großbuchstaben erforderlich</legend>
 					<input
 						id="password-uppercase"
 						name="uppercase"
@@ -360,14 +317,14 @@
 				</fieldset>
 
 				<fieldset class="fieldset">
-					<legend class="fieldset-legend">exclude</legend>
+					<legend class="fieldset-legend">Zeichen ausschließen</legend>
 					<textarea id="password-exclude" name="exclude" class="textarea"
 						>{data.password.exclude}</textarea
 					>
 					<div class="label">Optional</div>
 				</fieldset>
 
-				<button type="submit" class="btn">Save</button>
+				<button type="submit" class="btn">Speichern</button>
 			</form>
 		</Collapse>
 	</section>
