@@ -30,6 +30,7 @@ export const SMTP = z.object({
 	port: z.number().min(0).default(587),
 	username: z.string().default(''),
 	password: z.string().default(''),
+	secure: z.boolean().default(false),
 	from: z.string().default(''),
 	to: z.string().default(''),
 	subject: z.string().default(''),
