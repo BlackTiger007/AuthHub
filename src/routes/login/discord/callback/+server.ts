@@ -27,14 +27,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	let tokens: OAuth2Tokens;
 	try {
 		tokens = await discord(event.url.origin).validateAuthorizationCode(code, null);
-	} catch (e) {
-		if (e instanceof OAuth2RequestError) {
-			console.log('Invalid authorization code, credentials, or redirect URI');
-		}
-		if (e instanceof ArcticFetchError) {
-			console.log('Failed to call `fetch()`');
-		}
-		console.error(e);
+	} catch {
 		return new Response('Please restart the process.', { status: 400 });
 	}
 
