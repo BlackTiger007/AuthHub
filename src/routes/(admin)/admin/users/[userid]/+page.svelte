@@ -3,7 +3,7 @@
 	import { Role, RoleLabels } from '$lib/utils/roles';
 	import type { PageProps } from './$types';
 
-	let { form, data }: PageProps = $props();
+	let { data, form }: PageProps = $props();
 
 	const roles = Object.entries(RoleLabels) as unknown as [Role, string][];
 
@@ -19,149 +19,184 @@
 	}
 </script>
 
-<main class="text-base-content flex grow flex-col items-center space-y-8 p-6">
-	<div class="flex w-full max-w-5xl items-center justify-between">
+<main class="mx-auto max-w-5xl space-y-10 p-6">
+	<header class="flex items-center justify-between">
 		<h1 class="text-3xl font-bold">Benutzerdetails</h1>
 		<a href="/admin/users" class="btn btn-sm btn-outline">Zurück zur Übersicht</a>
-	</div>
+	</header>
 
-	<!-- Systemdaten -->
-	<div class="card bg-base-200 w-full max-w-5xl shadow-lg">
-		<div class="card-body space-y-4">
-			<h2 class="card-title text-xl">Systemdaten</h2>
-			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-				<p><strong>ID:</strong> {data.user.id}</p>
-				<p><strong>Rolle:</strong> {Role[data.user.role]}</p>
-				<p><strong>Erstellt am:</strong> {formatDate(data.user.createdAt)}</p>
-				<p><strong>Letzte Änderung:</strong> {formatDate(data.user.updatedAt)}</p>
-				<p>
-					<strong>Letzter Login:</strong>
-					{data.user.lastLogin ? formatDate(data.user.lastLogin) : '-'}
-				</p>
-				<p>
-					<strong>Status:</strong>
-					{#if data.user.emailVerified}
-						<span class="badge badge-success">Verifiziert</span>
-					{:else}
-						<span class="badge badge-warning">Nicht verifiziert</span>
-					{/if}
-				</p>
-			</div>
-		</div>
-	</div>
-
-	<!-- Benutzerdaten -->
-	<div class="card bg-base-200 w-full max-w-5xl shadow-lg">
-		<div class="card-body space-y-6">
-			<h2 class="card-title text-xl">Benutzerdaten bearbeiten</h2>
-
-			<fieldset class="fieldset">
-				<label for="email" class="fieldset-legend">E-Mail-Adresse</label>
-				<input
-					type="email"
-					name="email"
-					id="email"
-					class="input input-bordered"
-					value={data.user.email}
-					readonly
-				/>
-			</fieldset>
-
-			<fieldset class="fieldset">
-				<label for="username" class="fieldset-legend">Benutzername</label>
-				<input
-					type="text"
-					name="username"
-					id="username"
-					class="input input-bordered"
-					value={data.user.username}
-					readonly
-				/>
-			</fieldset>
-
-			<fieldset class="fieldset">
-				<label for="name" class="fieldset-legend">Name</label>
-				<input
-					type="text"
-					name="name"
-					id="name"
-					class="input input-bordered"
-					value={data.user.name ?? ''}
-					readonly
-				/>
-				<p class="label">Optional</p>
-			</fieldset>
-
-			<!-- Passwort ändern -->
-			<form action="?/password" method="post" use:enhance class="space-y-2">
-				<fieldset class="fieldset">
-					<label for="newPassword" class="fieldset-legend">Neues Passwort</label>
-					<input
-						type="password"
-						name="newPassword"
-						id="newPassword"
-						class="input input-bordered"
-						required
-					/>
-				</fieldset>
-				<button class="btn btn-warning">Passwort ändern</button>
-			</form>
-
-			<!-- Rolle ändern -->
-			<form method="post" action="?/role" use:enhance class="space-y-2">
-				<label for="role" class="label">Rolle ändern</label>
-				<select id="role" name="role" class="select select-bordered w-full">
-					{#each roles as [roleValue, roleLabel]}
-						{@const numericValue = Number(roleValue)}
-						<option value={numericValue} selected={data.user.role === numericValue}>
-							{roleLabel}
-						</option>
-					{/each}
-				</select>
-
-				<button class="btn btn-sm btn-primary mt-2" type="submit">Rolle aktualisieren</button>
-
-				{#if form?.form === 'role'}
-					{#if form?.success}
-						<p class="text-success">Rolle erfolgreich geändert.</p>
-					{:else if form?.message}
-						<p class="text-error">{form.message}</p>
-					{/if}
+	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
+		<h2 class="text-xl font-semibold">Systemdaten</h2>
+		<div class="grid grid-cols-1 gap-6 text-sm md:grid-cols-2">
+			<p><strong>ID:</strong> {data.user.id}</p>
+			<p><strong>Rolle:</strong> {Role[data.user.role]}</p>
+			<p><strong>Erstellt am:</strong> {formatDate(data.user.createdAt)}</p>
+			<p><strong>Letzte Änderung:</strong> {formatDate(data.user.updatedAt)}</p>
+			<p>
+				<strong>Letzter Login:</strong>
+				{data.user.lastLogin ? formatDate(data.user.lastLogin) : '-'}
+			</p>
+			<p>
+				<strong>Status:</strong>
+				{#if data.user.emailVerified}
+					<span class="badge badge-success">Verifiziert</span>
+				{:else}
+					<span class="badge badge-warning">Nicht verifiziert</span>
 				{/if}
-			</form>
-
-			<!-- Benutzer verifizieren -->
-			<form action="?/verify" method="post" use:enhance>
-				<button class="btn btn-primary" disabled={data.user.emailVerified}>
-					{data.user.emailVerified ? 'Bereits verifiziert' : 'Benutzer verifizieren'}
-				</button>
-				{#if form?.form === 'verify'}
-					{#if form?.success}
-						<p class="text-success">Benutzer erfolgreich verifiziert!</p>
-					{:else if form.message}
-						<p class="text-error">{form.message}</p>
-					{/if}
-				{/if}
-			</form>
+			</p>
 		</div>
-	</div>
+	</section>
 
-	<!-- Authentifizierungen -->
-	<div class="card bg-base-200 w-full max-w-5xl shadow-lg">
-		<div class="card-body space-y-4">
-			<h2 class="card-title text-xl">Verbundene Authentifizierungen</h2>
-			{#if data.user.discordId || data.user.githubId}
-				<ul class="list-disc pl-4">
-					{#if data.user.discordId}
-						<li>Discord</li>
-					{/if}
-					{#if data.user.githubId}
-						<li>GitHub</li>
-					{/if}
-				</ul>
-			{:else}
-				<p>Keine verbundenen Authentifizierungen gefunden.</p>
+	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
+		<h2 class="text-xl font-semibold">E-Mail aktualisieren</h2>
+		<p>Aktuelle E-Mail: <span class="font-mono">{data.user.email}</span></p>
+		<form method="post" use:enhance action="?/update_email" class="flex flex-col gap-4">
+			<label for="form-email-email" class="font-medium">Neue E-Mail</label>
+			<input
+				type="email"
+				id="form-email-email"
+				name="email"
+				class="input input-bordered w-full"
+				aria-describedby="email-message"
+				required
+			/>
+			<button type="submit" class="btn btn-primary w-full">Aktualisieren</button>
+			{#if form?.email?.message}
+				<p id="email-message" class="text-error font-medium" role="alert" aria-live="polite">
+					{form.email.message}
+				</p>
 			{/if}
-		</div>
-	</div>
+		</form>
+	</section>
+
+	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
+		<h2 class="text-xl font-semibold">Passwort aktualisieren</h2>
+		<form method="post" use:enhance action="?/update_password" class="flex flex-col gap-4">
+			<label for="form-password-current" class="font-medium">Aktuelles Passwort</label>
+			<input
+				type="password"
+				id="form-password-current"
+				name="password"
+				autocomplete="current-password"
+				class="input input-bordered w-full"
+				required
+				aria-describedby="password-message"
+			/>
+
+			<label for="form-password-new" class="font-medium">Neues Passwort</label>
+			<input
+				type="password"
+				id="form-password-new"
+				name="new_password"
+				autocomplete="new-password"
+				class="input input-bordered w-full"
+				required
+			/>
+
+			<button type="submit" class="btn btn-primary w-full">Aktualisieren</button>
+
+			{#if form?.password?.message}
+				<p id="password-message" class="text-error font-medium" role="alert" aria-live="polite">
+					{form.password.message}
+				</p>
+			{/if}
+		</form>
+	</section>
+
+	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
+		<h2 class="text-xl font-semibold">Authenticator-App</h2>
+		{#if data.user.registeredTOTP}
+			<div class="flex flex-col gap-2">
+				<form method="post" use:enhance action="?/disconnect_totp" class="mt-2">
+					<button type="submit" class="btn btn-error w-full">Trennen</button>
+				</form>
+			</div>
+		{:else}
+			<a href="/2fa/totp/setup" class="btn btn-primary w-full">TOTP einrichten</a>
+		{/if}
+	</section>
+
+	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
+		<h2 class="text-xl font-semibold">Passkeys</h2>
+		<p class="text-base-content/70 mb-4 text-sm">
+			Passkeys sind WebAuthn-Zugangsdaten, die Ihre Identität per Gerät bestätigen.
+		</p>
+		<ul class="space-y-3">
+			{#each data.passkeyCredentials as credential}
+				<li class="bg-base-200 flex items-center justify-between rounded-md p-3">
+					<p class="font-medium">{credential.name}</p>
+					<form method="post" use:enhance action="?/delete_passkey">
+						<input type="hidden" name="credential_id" value={credential.id} />
+						<button type="submit" class="btn btn-sm btn-error">Löschen</button>
+					</form>
+				</li>
+			{/each}
+		</ul>
+	</section>
+
+	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
+		<h2 class="text-xl font-semibold">Sicherheitsschlüssel</h2>
+		<p class="text-base-content/70 mb-4 text-sm">
+			Sicherheitsschlüssel sind WebAuthn-Zugangsdaten, die ausschließlich für die
+			Zwei-Faktor-Authentifizierung verwendet werden.
+		</p>
+		<ul class="space-y-3">
+			{#each data.securityKeyCredentials as credential}
+				<li class="bg-base-200 flex items-center justify-between rounded-md p-3">
+					<p class="font-medium">{credential.name}</p>
+					<form method="post" use:enhance action="?/delete_security_key">
+						<input type="hidden" name="credential_id" value={credential.id} />
+						<button type="submit" class="btn btn-sm btn-error">Löschen</button>
+					</form>
+				</li>
+			{/each}
+		</ul>
+	</section>
+
+	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
+		<h2 class="text-xl font-semibold">OAuth Apps</h2>
+		<p class="text-base-content/70 mb-4 text-sm">
+			OAuth-Verknüpfungen ermöglichen den sicheren Login über externe Dienste wie GitHub oder
+			Discord.
+		</p>
+		<ul class="space-y-3">
+			{#if data.user.github}
+				<li class="bg-base-200 flex items-center justify-between rounded-md p-3">
+					<p class="font-medium">GitHub</p>
+					<form method="post" use:enhance action="?/delete_oauth">
+						<input type="hidden" name="auth_name" value="github" />
+						<button type="submit" class="btn btn-sm btn-error">Löschen</button>
+					</form>
+				</li>
+			{/if}
+
+			{#if data.user.discord}
+				<li class="bg-base-200 flex items-center justify-between rounded-md p-3">
+					<p class="font-medium">Discord</p>
+					<form method="post" use:enhance action="?/delete_oauth">
+						<input type="hidden" name="auth_name" value="discord" />
+						<button type="submit" class="btn btn-sm btn-error">Löschen</button>
+					</form>
+				</li>
+			{/if}
+		</ul>
+
+		{#if form?.auth?.message}
+			<p id="password-message" class="text-error font-medium" role="alert" aria-live="polite">
+				{form.auth.message}
+			</p>
+		{/if}
+	</section>
+
+	<section class="card bg-base-100 space-y-4 rounded-lg p-6 shadow">
+		<h2 class="text-xl font-semibold">Recovery-Code</h2>
+		<form method="post" use:enhance action="?/regenerate_recovery_code">
+			<label for="regenerate-recovery-code" class="fieldset-legend w-fit">
+				Bist du dir Sicher?
+				<input type="checkbox" id="regenerate-recovery-code" class="checkbox" required />
+			</label>
+
+			<button type="submit" class="btn btn-warning w-full">Neuen Code generieren</button>
+		</form>
+	</section>
 </main>
