@@ -1,13 +1,19 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { Role } from '$lib/utils/roles';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 </script>
 
-<header class="mb-4 space-x-4">
-	<a href="/" class="link">Home</a>
-	<a href="/settings" class="link">Settings</a>
+<header class="bg-base-100 flex justify-between p-4 shadow-md">
+	<nav class="flex gap-4">
+		<a href="/" class="link link-primary font-semibold">Home</a>
+		<a href="/settings" class="link link-primary font-semibold">Settings</a>
+		{#if data.user.role >= Role.Admin}
+			<a href="/admin" class="link link-primary font-semibold">Dashbord</a>
+		{/if}
+	</nav>
 </header>
 
 <main>
