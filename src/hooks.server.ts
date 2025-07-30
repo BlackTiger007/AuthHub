@@ -43,6 +43,8 @@ const authHandle: Handle = async ({ event, resolve }) => {
 	if (token === null) {
 		event.locals.user = null;
 		event.locals.session = null;
+
+		Sentry.setUser({ id: undefined });
 		return resolve(event);
 	}
 
@@ -55,6 +57,14 @@ const authHandle: Handle = async ({ event, resolve }) => {
 
 	event.locals.session = session;
 	event.locals.user = user;
+
+	if (user?.id) {
+		Sentry.setUser({ id: user.id });
+		Sentry.setTag('auth', 'authenticated');
+	} else {
+		Sentry.setUser({ id: undefined });
+	}
+
 	return resolve(event);
 };
 
