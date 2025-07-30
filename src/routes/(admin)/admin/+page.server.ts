@@ -1,15 +1,16 @@
 import { deleteSessionTokenCookie, invalidateSession } from '$lib/server/utils/session';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { requireLogin } from '$lib/server/utils/auth';
 import { writeLog } from '$lib/server/utils/db/log';
 import { LogEvent } from '$lib/utils/events';
 import { db } from '$lib/server/db';
 import { schema } from '$lib/server/db/schema';
 import { and, gte, lt } from 'drizzle-orm';
 
-export const load: PageServerLoad = async () => {
-	const user = requireLogin();
+export const load: PageServerLoad = async ({ locals }) => {
+	if (!locals.user) {
+		return redirect(302, '/login');
+	}
 
 	const now = new Date();
 	const startOfToday = new Date(now);
@@ -93,7 +94,7 @@ export const load: PageServerLoad = async () => {
 	const trendMonthlyActive = monthlyActiveUsers - previousMonthlyActiveUsers;
 
 	return {
-		user,
+		user: locals.user,
 		totalUsers,
 		newUsersToday,
 		newUsersLast7Days,
