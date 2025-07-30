@@ -12,6 +12,16 @@
 - [ ] Backup-Codes: 10 einmalig nutzbare Codes nach MFA-Einrichtung generieren
 - [ ] API-Schlüsselverwaltung
 - [ ] package "@pilcrowjs/object-parser" entfernen
+- [ ] GitHub OAuth-App per Button erstellen ermöglichen  
+- [ ] Integrierte Dokumentation hinzufügen  
+- [ ] Berechtigungen differenzierter umsetzen, z. B. „Readonly“ mit deaktivierten Bedienelementen  
+- [ ] Möglichkeit zur Anpassung der Berechtigungen schaffen  
+- [ ] Verwaltung von Anwendungen implementieren  
+- [ ] Externe Login-Provider integrieren  
+  - [ ] Redirect-Optionen konfigurieren (zu spezifischer URL oder Startseite)  
+- [ ] Logging-System einführen  
+- [ ] Anpassbare Rate-Limiting-Funktionalität implementieren  
+- [ ] tRPC einsetzen für typsichere API-Kommunikation ohne manuelles SDK  
 
 ---
 
