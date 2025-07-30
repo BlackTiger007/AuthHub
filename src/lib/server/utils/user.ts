@@ -5,7 +5,7 @@ import { decryptToString, encryptString } from './encryption';
 import { hashPassword } from './password';
 import { generateRandomRecoveryCode } from './utils';
 import type { User, UserAuth } from '../db/schema';
-import { generateId } from './auth';
+import { generateId } from './generateId';
 
 export function verifyUsernameInput(username: string): boolean {
 	return username.length > 3 && username.length < 32 && username.trim() === username;

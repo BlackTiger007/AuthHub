@@ -2,7 +2,7 @@ import { db } from '$lib/server/db';
 import { log } from '$lib/server/db/schema/log';
 import type { RequestEvent } from '@sveltejs/kit';
 import type { LogEvent } from '$lib/utils/events';
-import { generateId } from '../auth';
+import { generateId } from '../generateId';
 
 export async function writeLog(event: RequestEvent, logEvent: LogEvent, data?: unknown) {
 	await db.insert(log).values({
