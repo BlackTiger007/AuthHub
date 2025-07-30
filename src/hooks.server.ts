@@ -5,8 +5,23 @@ import {
 	deleteSessionTokenCookie
 } from '$lib/server/utils/session';
 import { sequence } from '@sveltejs/kit/hooks';
+import { handleErrorWithSentry, sentryHandle } from '@sentry/sveltekit';
+import * as Sentry from '@sentry/sveltekit';
+import { PUBLIC_SENTRY_DSN } from '$env/static/public';
 
 import type { Handle } from '@sveltejs/kit';
+
+Sentry.init({
+	dsn: PUBLIC_SENTRY_DSN,
+
+	tracesSampleRate: 1.0,
+
+	// Enable logs to be sent to Sentry
+	enableLogs: true
+
+	// uncomment the line below to enable Spotlight (https://spotlightjs.com)
+	// spotlight: import.meta.env.DEV,
+});
 
 const bucket = new RefillingTokenBucket<string>(100, 1);
 
@@ -50,4 +65,8 @@ const authHandle: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-export const handle = sequence(rateLimitHandle, authHandle);
+// If you have custom handlers, make sure to place them after `sentryHandle()` in the `sequence` function.
+export const handle = sequence(sentryHandle(), rateLimitHandle, authHandle);
+
+// If you have a custom error handler, pass it to `handleErrorWithSentry`
+export const handleError = handleErrorWithSentry();

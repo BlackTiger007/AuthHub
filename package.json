@@ -51,6 +51,7 @@
 		"@oslojs/webauthn": "^1.0.0",
 		"@pilcrowjs/db-query": "^0.0.2",
 		"@pilcrowjs/object-parser": "^0.0.4",
+		"@sentry/sveltekit": "^9.43.0",
 		"arctic": "^3.7.0",
 		"better-sqlite3": "^11.10.0",
 		"drizzle-orm": "^0.40.1",
