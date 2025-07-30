@@ -35,7 +35,7 @@
 
 <nav class="menu bg-base-300 rounded-box sticky top-0 h-screen w-64 rounded-none p-4">
 	<ul class="space-y-1 overflow-auto">
-		<li class="menu-title text-base-content text-2xl">Admin Konsole</li>
+		<li class="menu-title text-base-content text-2xl">Admin Dashbord</li>
 
 		{#each navItems as section}
 			<li class="menu-title">{section.title}</li>
@@ -49,6 +49,10 @@
 		{/each}
 
 		<li class="my-3"></li>
+
+		<li>
+			<a href="/settings">Einstellungen</a>
+		</li>
 
 		<li>
 			<form action="/admin/?/logout" method="post" class="hover:bg-error">
