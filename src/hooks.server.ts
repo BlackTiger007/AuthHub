@@ -31,16 +31,9 @@ const rateLimitHandle: Handle = async ({ event, resolve }) => {
 	if (clientIP === null) {
 		return resolve(event);
 	}
-	let cost: number;
-	if (event.request.method === 'GET' || event.request.method === 'OPTIONS') {
-		cost = 1;
-	} else {
-		cost = 3;
-	}
+	const cost = event.request.method === 'GET' || event.request.method === 'OPTIONS' ? 1 : 3;
 	if (!bucket.consume(clientIP, cost)) {
-		return new Response('Too many requests', {
-			status: 429
-		});
+		return new Response('Too many requests', { status: 429 });
 	}
 	return resolve(event);
 };
