@@ -24,7 +24,7 @@ export function load(event: PageServerLoadEvent) {
 }
 
 export const actions: Actions = {
-	default: action
+	logout: action
 };
 
 async function action(event: RequestEvent) {
