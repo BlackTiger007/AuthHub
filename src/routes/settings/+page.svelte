@@ -1,20 +1,12 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { Role } from '$lib/utils/roles';
+	import Navbar from '$lib/components/navbar.svelte';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
 </script>
 
-<header class="bg-base-100 flex justify-between p-4 shadow-md">
-	<nav class="flex gap-4">
-		<a href="/" class="link link-primary font-semibold">Home</a>
-		<a href="/settings" class="link link-primary font-semibold">Settings</a>
-		{#if data.user.role >= Role.Admin}
-			<a href="/admin" class="link link-primary font-semibold">Dashbord</a>
-		{/if}
-	</nav>
-</header>
+<Navbar />
 
 <main class="mx-auto max-w-3xl space-y-10 p-6">
 	<h1 class="text-center text-3xl font-bold">Einstellungen</h1>
