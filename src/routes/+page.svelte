@@ -12,8 +12,4 @@
 	<h1>Willkommen bei AuthHub</h1>
 	<h2 class="mb-2">Hi {data.user.username}!</h2>
 	<p class="mb-4">You are signed in. Use the button below to log out of your session.</p>
-
-	<form method="post" action="?/logout" use:enhance>
-		<button class="btn">Sign out</button>
-	</form>
 </main>
