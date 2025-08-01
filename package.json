@@ -55,6 +55,7 @@
 		"arctic": "^3.7.0",
 		"better-sqlite3": "^11.10.0",
 		"drizzle-orm": "^0.40.1",
+		"nodemailer": "^7.0.5",
 		"uqr": "^0.1.2",
 		"zod": "^4.0.5"
 	},
