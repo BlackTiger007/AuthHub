@@ -5,7 +5,7 @@ import {
 	setEmailVerificationRequestCookie
 } from '$lib/server/utils/email-verification';
 import { error, fail, redirect } from '@sveltejs/kit';
-import { checkEmailAvailability, verifyEmailInput } from '$lib/server/utils/email';
+import { checkEmailAvailability, sendMail, verifyEmailInput } from '$lib/server/utils/email';
 import { verifyPasswordHash, verifyPasswordStrength } from '$lib/server/utils/password';
 import {
 	getUserPasswordHash,
@@ -223,7 +223,15 @@ async function updateEmailAction(event: RequestEvent) {
 		});
 	}
 	const verificationRequest = await createEmailVerificationRequest(event.locals.user.id, email);
-	sendVerificationEmail(verificationRequest.email, verificationRequest.code);
+
+	try {
+		await sendVerificationEmail(verificationRequest.email, verificationRequest.code);
+	} catch (error) {
+		return fail(400, {
+			message: 'Failed to send verification email: ' + error
+		});
+	}
+
 	setEmailVerificationRequestCookie(event, verificationRequest);
 	return redirect(302, '/verify-email');
 }
@@ -312,13 +320,20 @@ async function regenerateRecoveryCodeAction(event: RequestEvent) {
 		return fail(403);
 	}
 
-	// TODO: Send User E-Mail with new recovery code
-
 	const code = await resetUserRecoveryCode(event.locals.session.userId);
 
-	console.log('neuer Code: ', code);
-
-	return {};
+	// TODO: Update HTML to show the new recovery code
+	await sendMail({
+		to: event.locals.user.email,
+		subject: 'New Recovery Code',
+		html: `<p>Your new recovery code is <strong>${code}</strong>.</p>`,
+		text: `Your new recovery code is ${code}.`
+	});
+	return {
+		form: 'regenerate_recovery_code',
+		success: true,
+		message: 'Recovery code regenerated and sent to the registered email.'
+	};
 }
 
 async function deleteOauth(event: RequestEvent) {
