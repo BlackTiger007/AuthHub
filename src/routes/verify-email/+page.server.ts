@@ -28,7 +28,14 @@ export async function load(event: RequestEvent) {
 			event.locals.user.id,
 			event.locals.user.email
 		);
-		sendVerificationEmail(verificationRequest.email, verificationRequest.code);
+
+		try {
+			await sendVerificationEmail(verificationRequest.email, verificationRequest.code);
+		} catch (error) {
+			return fail(400, {
+				message: 'Failed to send verification email: ' + error
+			});
+		}
 		setEmailVerificationRequestCookie(event, verificationRequest);
 	}
 	return {
@@ -90,7 +97,13 @@ async function verifyCode(event: RequestEvent) {
 			verificationRequest.userId,
 			verificationRequest.email
 		);
-		sendVerificationEmail(verificationRequest.email, verificationRequest.code);
+		try {
+			await sendVerificationEmail(verificationRequest.email, verificationRequest.code);
+		} catch (error) {
+			return fail(400, {
+				message: 'Failed to send verification email: ' + error
+			});
+		}
 		return {
 			verify: {
 				message: 'The verification code was expired. We sent another code to your inbox.'
@@ -169,7 +182,13 @@ async function resendEmail(event: RequestEvent) {
 			verificationRequest.email
 		);
 	}
-	sendVerificationEmail(verificationRequest.email, verificationRequest.code);
+	try {
+		await sendVerificationEmail(verificationRequest.email, verificationRequest.code);
+	} catch (error) {
+		return fail(400, {
+			message: 'Failed to send verification email: ' + error
+		});
+	}
 	setEmailVerificationRequestCookie(event, verificationRequest);
 	return {
 		resend: {

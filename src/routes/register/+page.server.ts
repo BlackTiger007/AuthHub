@@ -107,7 +107,15 @@ async function action(event: RequestEvent) {
 	}
 	const user = await createUser(email, username, password);
 	const emailVerificationRequest = await createEmailVerificationRequest(user.id, user.email);
-	sendVerificationEmail(emailVerificationRequest.email, emailVerificationRequest.code);
+
+	try {
+		await sendVerificationEmail(emailVerificationRequest.email, emailVerificationRequest.code);
+	} catch (error) {
+		return fail(400, {
+			message: 'Failed to send verification email: ' + error
+		});
+	}
+
 	setEmailVerificationRequestCookie(event, emailVerificationRequest);
 
 	const sessionToken = generateSessionToken();
