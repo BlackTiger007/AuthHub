@@ -13,8 +13,8 @@ import type { Handle } from '@sveltejs/kit';
 
 Sentry.init({
 	dsn: PUBLIC_SENTRY_DSN,
-
 	tracesSampleRate: 1.0,
+	environment: import.meta.env.MODE,
 
 	// Enable logs to be sent to Sentry
 	enableLogs: true
