@@ -77,7 +77,7 @@
 							name="clientSecret"
 							type="password"
 							class="input"
-							value={data.discord.clientSecret}
+							placeholder={data.discord.clientSecret}
 							autocomplete="off"
 							required
 						/>
@@ -156,7 +156,7 @@
 							name="clientSecret"
 							type="password"
 							class="input"
-							value={data.github.clientSecret}
+							placeholder={data.github.clientSecret}
 							required
 						/>
 					</fieldset>
@@ -221,7 +221,7 @@
 				</fieldset>
 				<fieldset class="fieldset">
 					<legend class="fieldset-legend">Passwort</legend>
-					<input type="password" name="password" class="input" value={data.smtp.password} />
+					<input type="password" name="password" class="input" placeholder={data.smtp.password} />
 				</fieldset>
 				<fieldset class="fieldset">
 					<legend class="fieldset-legend">Absender Name (From)</legend>
