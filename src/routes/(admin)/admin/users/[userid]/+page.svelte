@@ -197,6 +197,11 @@
 			</label>
 
 			<button type="submit" class="btn btn-warning w-full">Neuen Code generieren</button>
+			{#if form?.form === 'regenerate_recovery_code'}
+				<p class={form.success ? 'text-success' : 'text-error'}>
+					{form.success ? form.message : JSON.stringify(form.message, null, 2)}
+				</p>
+			{/if}
 		</form>
 	</section>
 </main>
