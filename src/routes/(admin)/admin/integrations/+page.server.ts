@@ -4,6 +4,7 @@ import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import z from 'zod';
 import { saveSettings } from '$lib/server/utils/db/settings';
+import { sendMail, SMTPSchema, verifyEmailInput, verifySMTP } from '$lib/server/utils/email';
 
 export const load = (async ({ url }) => {
 	const { Discord, GitHub, SMTP, Password } = settings;
@@ -143,22 +144,31 @@ export const actions = {
 	smtp: async ({ request }) => {
 		const form = await request.formData();
 
-		const rawData = {
-			setup: true,
-			host: form.get('host'),
-			port: Number(form.get('port')),
-			username: form.get('username'),
-			password: form.get('password'),
-			from: form.get('from'),
-			to: form.get('to')
-		};
+		const host = form.get('host') ?? '';
+		const port = Number(form.get('port'));
+		const secure = form.get('secure') === 'on' && port === 465;
+		const requireTLS = form.get('requiretls') === 'on';
+		const user = form.get('user') ?? '';
+		const password = form.get('password') || settings.SMTP.password;
+		const from = form.get('from') || undefined;
+		const replyTo = form.get('replyTo') || undefined;
 
-		const parseResult = SMTP.safeParse(rawData);
+		const parseResult = SMTPSchema.safeParse({
+			setup: true,
+			host,
+			port,
+			secure,
+			requireTLS,
+			user,
+			password,
+			from,
+			replyTo
+		});
 
 		if (!parseResult.success) {
 			return fail(400, {
 				form: 'smtp',
-				message: z.treeifyError(parseResult.error)
+				message: z.treeifyError(parseResult.error).properties
 			});
 		}
 
@@ -198,13 +208,47 @@ export const actions = {
 
 	smtpTest: async ({ request }) => {
 		const form = await request.formData();
-		const testEmail = form.get('test') ?? '';
+		const testEmail = form.get('test') as string;
 
-		if (!testEmail) {
-			fail(400, { form: 'smtpTest', message: 'Keine E-Mail angegeben' });
+		if (!verifyEmailInput(testEmail)) {
+			fail(400, {
+				form: 'smtpTest',
+				message: 'Bitte gib eine gültige E-Mail-Adresse für den Testversand an.'
+			});
 		}
 
-		return { success: true, form: 'smtpTest' };
+		try {
+			await verifySMTP();
+		} catch (error) {
+			console.error('SMTP-Verbindungsfehler:', error);
+			fail(400, {
+				form: 'smtpTest',
+				message:
+					'Verbindung zum SMTP-Server fehlgeschlagen. Bitte überprüfe die SMTP-Konfiguration.'
+			});
+		}
+
+		try {
+			await sendMail({
+				to: testEmail,
+				subject: 'Test E-Mail',
+				html: '<h1>Dies ist eine Test-E-Mail</h1><p>Die SMTP-Verbindung funktioniert korrekt.</p>',
+				text: 'Dies ist eine Test-E-Mail. Die SMTP-Verbindung funktioniert korrekt.'
+			});
+		} catch (err) {
+			console.error('Fehler beim Senden der Test-E-Mail:', err);
+			fail(400, {
+				form: 'smtpTest',
+				message:
+					'Die Verbindung war erfolgreich, aber der Versand der Test-E-Mail ist fehlgeschlagen. Bitte überprüfe Empfängeradresse und Absender-Einstellungen.'
+			});
+		}
+
+		return {
+			success: true,
+			form: 'smtpTest',
+			message: 'Test-E-Mail wurde erfolgreich versendet.'
+		};
 	},
 
 	password: async ({ request }) => {
