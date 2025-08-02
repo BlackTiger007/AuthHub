@@ -13,6 +13,7 @@ import {
 import { eq } from 'drizzle-orm';
 import type { RequestEvent } from '@sveltejs/kit';
 import type { PasswordResetSession, UserAuth } from '../db/schema';
+import { sendMail } from './email';
 
 export async function createPasswordResetSession(
 	token: string,
@@ -143,8 +144,13 @@ export function deletePasswordResetSessionTokenCookie(event: RequestEvent): void
 	});
 }
 
-export function sendPasswordResetEmail(email: string, code: string): void {
-	console.log(`To ${email}: Your reset code is ${code}`);
+export async function sendPasswordResetEmail(email: string, code: string): Promise<void> {
+	await sendMail({
+		to: email,
+		subject: 'Password Reset Code',
+		html: `<p>Your password reset code is <strong>${code}</strong>.</p>`,
+		text: `Your password reset code is ${code}.`
+	});
 }
 
 export type PasswordResetSessionValidationResult =
