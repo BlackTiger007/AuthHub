@@ -24,15 +24,17 @@ export const GitHub = z.object({
 	clientSecret: z.string().default('')
 });
 
+// TODO: ist das so nötig und wird alle verwendet?
 export const SMTP = z.object({
 	setup: z.boolean().default(false),
 	host: z.string().default(''),
 	port: z.number().min(0).default(587),
-	username: z.string().default(''),
+	user: z.string().default(''),
 	password: z.string().default(''),
 	secure: z.boolean().default(false),
+	requireTLS: z.boolean().default(true),
 	from: z.string().default(''),
-	to: z.string().default(''),
+	replyTo: z.string().default(''),
 	subject: z.string().default(''),
 	text: z.string().default(''),
 	html: z.string().default('')
