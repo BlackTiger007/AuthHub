@@ -8,6 +8,7 @@ import {
 } from '../db/schema/email-verification-request';
 import { eq, and } from 'drizzle-orm';
 import type { RequestEvent } from '@sveltejs/kit';
+import { sendMail } from './email';
 
 export async function getUserEmailVerificationRequest(
 	userId: string,
@@ -67,8 +68,13 @@ export async function deleteUserEmailVerificationRequest(userId: string): Promis
 	await db.delete(emailVerificationRequest).where(eq(emailVerificationRequest.userId, userId));
 }
 
-export function sendVerificationEmail(email: string, code: string): void {
-	console.log(`To ${email}: Your verification code is ${code}`);
+export async function sendVerificationEmail(email: string, code: string): Promise<void> {
+	return await sendMail({
+		to: email,
+		subject: 'Email Verification',
+		html: `<p>Your verification code is <strong>${code}</strong>.</p>`,
+		text: `Your verification code is ${code}.`
+	});
 }
 
 export function setEmailVerificationRequestCookie(
