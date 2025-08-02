@@ -9,7 +9,22 @@ import { sendMail, SMTPSchema, verifyEmailInput, verifySMTP } from '$lib/server/
 export const load = (async ({ url }) => {
 	const { Discord, GitHub, SMTP, Password } = settings;
 
-	return { url: url.origin, discord: Discord, github: GitHub, smtp: SMTP, password: Password };
+	return {
+		url: url.origin,
+		discord: {
+			...Discord,
+			clientSecret: Discord.clientSecret.replace(/./g, '*')
+		},
+		github: {
+			...GitHub,
+			clientSecret: GitHub.clientSecret.replace(/./g, '*')
+		},
+		smtp: {
+			...SMTP,
+			password: SMTP.password.replace(/./g, '*')
+		},
+		password: Password
+	};
 }) satisfies PageServerLoad;
 
 export const actions = {
