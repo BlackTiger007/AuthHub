@@ -3,10 +3,10 @@ import { eq } from 'drizzle-orm';
 import { user } from '../db/schema';
 
 /**
- * Validiert die Formatierung und Länge einer E-Mail-Adresse.
+ * Validiert die Formatierung und maximale Länge einer E-Mail-Adresse.
  */
-export function verifyEmailInput(email: string): boolean {
-	return /^.+@.+\..+$/.test(email) && email.length < 256;
+export function verifyEmailInput(email: unknown): boolean {
+	return typeof email === 'string' && /^.+@.+\..+$/.test(email) && email.length < 256;
 }
 
 /**
