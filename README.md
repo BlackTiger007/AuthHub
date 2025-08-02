@@ -1,6 +1,8 @@
-# TODOs
+# AuthHub
 
-## 1. Grundlegende Infrastruktur & Sicherheit (Basis schaffen)
+## TODOs
+
+### 1. Grundlegende Infrastruktur & Sicherheit (Basis schaffen)
 
 - [ ] Rechteverwaltung differenzierter umsetzen, z. B. „Readonly“ mit deaktivierten Bedienelementen  
 - [ ] Möglichkeit zur Anpassung der Berechtigungen schaffen  
@@ -13,14 +15,14 @@
 - [ ] SMTP verschlüsselt speichern  
 - [ ] Wenn SMTP nicht gesetzt ist, immer eine Warnung anzeigen  
 
-## 2. API, Logging & Sicherheitserweiterungen
+### 2. API, Logging & Sicherheitserweiterungen
 
 - [ ] API-Schlüsselverwaltung  
 - [ ] Logging-System einführen  
 - [ ] Anpassbare Rate-Limiting-Funktionalität implementieren  
 - [ ] tRPC einsetzen für typsichere API-Kommunikation ohne manuelles SDK  
 
-## 3. UI/UX, Templates & Formulare
+### 3. UI/UX, Templates & Formulare
 
 - [ ] E-Mail HTML code zentral als Vorlage speichern  
 - [ ] E-Mail HTML code verbessern  
@@ -28,14 +30,14 @@
 - [ ] Bessere Fehlermeldungen und Zuordnung  
 - [ ] ARIA-Label verbessern  
 
-## 4. OAuth & Externe Integrationen
+### 4. OAuth & Externe Integrationen
 
 - [ ] GitHub OAuth-App per Button erstellen ermöglichen  
 - [ ] Externe Login-Provider integrieren  
   - [ ] Redirect-Optionen konfigurieren (zu spezifischer URL oder Startseite)  
 - [ ] Verwaltung von Anwendungen implementieren  
 
-## 5. Sonstiges & Optimierungen
+### 5. Sonstiges & Optimierungen
 
 - [ ] package "@pilcrowjs/object-parser" entfernen  
 - [ ] Statistiken-Schema entwerfen  
@@ -43,7 +45,7 @@
 
 ---
 
-## Abgeschlossen
+### Abgeschlossen
 
 - [x] Logout-Button hinzufügen  
 - [x] "Passwort vergessen"-Funktion implementieren  
