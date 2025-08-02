@@ -191,35 +191,66 @@
 
 	<section class="w-full max-w-5xl space-y-4">
 		<h2 class="text-lg font-semibold">📨 Benachrichtigungen</h2>
-		<Collapse title="SMTP Einstellungen">
+		<Collapse title="📧 SMTP-Konfiguration">
 			<form action="?/smtp" method="post" use:enhance class="space-y-4">
 				<fieldset class="fieldset">
 					<legend class="fieldset-legend">SMTP Host</legend>
-					<input type="text" name="host" class="input" value={data.smtp.host} required />
+					<input
+						type="text"
+						name="host"
+						class="input"
+						placeholder="smtp.example.com"
+						value={data.smtp.host}
+						required
+					/>
 				</fieldset>
 				<fieldset class="fieldset">
 					<legend class="fieldset-legend">Port</legend>
 					<input type="number" name="port" class="input" value={data.smtp.port} required />
 				</fieldset>
 				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Benutzername</legend>
-					<input type="text" name="username" class="input" value={data.smtp.username} />
+					<legend class="fieldset-legend">Benutzer</legend>
+					<input
+						type="text"
+						name="user"
+						class="input"
+						placeholder="mail@example.com"
+						value={data.smtp.user}
+						required
+					/>
 				</fieldset>
 				<fieldset class="fieldset">
 					<legend class="fieldset-legend">Passwort</legend>
 					<input type="password" name="password" class="input" value={data.smtp.password} />
 				</fieldset>
 				<fieldset class="fieldset">
-					<legend class="fieldset-legend">Absenderadresse (From)</legend>
-					<input type="email" name="from" class="input" value={data.smtp.from} required />
+					<legend class="fieldset-legend">Absender Name (From)</legend>
+					<input type="text" name="from" class="input" placeholder="Name" value={data.smtp.from} />
 				</fieldset>
 				<fieldset class="fieldset">
 					<legend class="fieldset-legend">Antwortadresse (Reply-To)</legend>
-					<input type="email" name="to" class="input" value={data.smtp.to} />
+					<input type="email" name="replyTo" class="input" value={data.smtp.replyTo} />
 				</fieldset>
 				<fieldset class="fieldset">
 					<legend class="fieldset-legend">TLS verwenden</legend>
-					<input type="checkbox" name="secure" class="checkbox" checked={data.smtp.secure} />
+					<input
+						type="checkbox"
+						name="secure"
+						class="checkbox"
+						value="off"
+						checked={data.smtp.secure}
+					/>
+					<p>TLS wird bei Port 465 benötigt. Bei Port 587 wird STARTTLS automatisch verwendet.</p>
+				</fieldset>
+				<fieldset class="fieldset">
+					<legend class="fieldset-legend">TLS erforderlich</legend>
+					<input
+						type="checkbox"
+						name="requiretls"
+						class="checkbox"
+						value="on"
+						checked={data.smtp.requireTLS ?? true}
+					/>
 				</fieldset>
 
 				{#if form?.form === 'smtp'}
@@ -248,7 +279,7 @@
 					</p>
 				{/if}
 
-				<button type="submit" class="btn">Senden</button>
+				<button type="submit" class="btn">Test-E-Mail senden</button>
 			</form>
 		</Collapse>
 	</section>
