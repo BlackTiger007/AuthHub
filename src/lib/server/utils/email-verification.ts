@@ -52,7 +52,7 @@ export async function createEmailVerificationRequest(
 		userId,
 		code,
 		email,
-		expiresAt: new Date(Math.floor(expiresAt.getTime() / 1000))
+		expiresAt
 	});
 
 	return {
