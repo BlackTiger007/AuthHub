@@ -14,15 +14,16 @@ export const load = (async ({ url }) => {
 		url: url.origin,
 		discord: {
 			...Discord,
-			clientSecret: Discord.clientSecret.replace(/./g, '*')
+			clientSecret: Discord.clientSecret ? '**********' : ''
 		},
 		github: {
 			...GitHub,
-			clientSecret: GitHub.clientSecret.replace(/./g, '*')
+			clientSecret: GitHub.clientSecret ? '**********' : ''
 		},
 		smtp: {
 			...SMTP,
-			password: SMTP.password.replace(/./g, '*')
+			user: SMTP.user ? decryptToString(Buffer.from(SMTP.user, 'base64')) : '',
+			password: SMTP.password ? '**********' : ''
 		},
 		password: Password
 	};
