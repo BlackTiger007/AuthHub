@@ -15,15 +15,18 @@ type SettingsMap = {
 export async function getSettings() {
 	const entries = await db.select().from(schema.setting);
 
-	// Wir füllen ein leeres Objekt im richtigen Typ
 	const parsed = {} as Record<keyof typeof AppSettings, unknown>;
 
 	for (const key of settingKeys) {
 		const schemaZod = AppSettings[key];
 		const entry = entries.find((e) => e.key === key);
 
-		const parsedValue = schemaZod.parse(entry?.value ?? {});
-		parsed[key] = parsedValue;
+		// Wenn kein Eintrag da ist, dann Default vom Schema verwenden
+		if (!entry) {
+			parsed[key] = schemaZod.parse({}); // leerer Input = Default-Werte vom Schema
+		} else {
+			parsed[key] = schemaZod.parse(entry.value ?? {}); // vorhandene Daten validieren
+		}
 	}
 
 	return parsed as SettingsMap;

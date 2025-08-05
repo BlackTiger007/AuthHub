@@ -5,6 +5,7 @@ import type { PageServerLoad, Actions } from './$types';
 import z from 'zod';
 import { saveSettings } from '$lib/server/utils/db/settings';
 import { sendMail, SMTPSchema, verifyEmailInput, verifySMTP } from '$lib/server/utils/email';
+import { decryptToString, encryptString } from '$lib/server/utils/encryption';
 
 export const load = (async ({ url }) => {
 	const { Discord, GitHub, SMTP, Password } = settings;
@@ -13,15 +14,16 @@ export const load = (async ({ url }) => {
 		url: url.origin,
 		discord: {
 			...Discord,
-			clientSecret: Discord.clientSecret.replace(/./g, '*')
+			clientSecret: Discord.clientSecret ? '**********' : ''
 		},
 		github: {
 			...GitHub,
-			clientSecret: GitHub.clientSecret.replace(/./g, '*')
+			clientSecret: GitHub.clientSecret ? '**********' : ''
 		},
 		smtp: {
 			...SMTP,
-			password: SMTP.password.replace(/./g, '*')
+			user: SMTP.user ? decryptToString(Buffer.from(SMTP.user, 'base64')) : '',
+			password: SMTP.password ? '**********' : ''
 		},
 		password: Password
 	};
@@ -187,7 +189,18 @@ export const actions = {
 			});
 		}
 
-		Object.assign(settings.SMTP, parseResult.data);
+		const smtp = parseResult.data;
+
+		//  Nur verschlüsseln, wenn neuer Klartext angegeben wurde
+		if (form.get('user')) {
+			smtp.user = Buffer.from(encryptString(smtp.user)).toString('base64');
+		}
+
+		if (form.get('password')) {
+			smtp.password = Buffer.from(encryptString(smtp.password)).toString('base64');
+		}
+
+		Object.assign(settings.SMTP, smtp);
 
 		await saveSettings();
 
