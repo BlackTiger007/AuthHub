@@ -4,6 +4,7 @@ import { user } from '../db/schema';
 import nodemailer, { type Transporter } from 'nodemailer';
 import { settings } from '../store.svelte';
 import z from 'zod';
+import { decryptToString } from './encryption';
 
 //
 // E-Mail Utils
@@ -55,13 +56,29 @@ export function createTransporter(config: {
 	});
 }
 
+/**
+ * Versucht einen Base64-codierten Wert zu entschlüsseln.
+ * Gibt bei Fehlern einen leeren String zurück.
+ */
+function safeDecryptBase64(value: string | undefined): string {
+	if (!value || typeof value !== 'string' || value.trim() === '') return '';
+	try {
+		return decryptToString(Buffer.from(value, 'base64'));
+	} catch {
+		return '';
+	}
+}
+
+const userDecrypted = safeDecryptBase64(settings.SMTP.user);
+const passDecrypted = safeDecryptBase64(settings.SMTP.password);
+
 const transporter = createTransporter({
 	host: settings.SMTP.host,
 	port: settings.SMTP.port,
 	secure: settings.SMTP.secure,
 	requireTLS: settings.SMTP.requireTLS,
-	user: settings.SMTP.user,
-	pass: settings.SMTP.password
+	user: userDecrypted,
+	pass: passDecrypted
 });
 
 /**
@@ -75,9 +92,7 @@ export async function sendMail(options: {
 	replyTo?: string;
 }) {
 	return transporter.sendMail({
-		from: settings.SMTP.from
-			? `"${settings.SMTP.from}" <${settings.SMTP.user}>`
-			: settings.SMTP.user,
+		from: settings.SMTP.from ? `"${settings.SMTP.from}" <${userDecrypted}>` : userDecrypted,
 		to: options.to,
 		replyTo: options.replyTo ?? settings.SMTP.replyTo,
 		subject: options.subject,
