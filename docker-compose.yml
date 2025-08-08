@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: authhub
+    ports:
+      - "3000:3000"
+    volumes:
+      - data:/app/data
+    environment:
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      '
+      mkdir -p /app/data &&
+      npx drizzle-kit migrate &&
+      if [ -z "$ENCRYPTION_KEY" ] || [ "$ENCRYPTION_KEY" = "''" ] || [ "$ENCRYPTION_KEY" = '""' ]; then
+        export ENCRYPTION_KEY=$(openssl rand --base64 16)
+        echo "Generated ENCRYPTION_KEY: $ENCRYPTION_KEY"
+      else
+        echo "Using existing ENCRYPTION_KEY"
+      fi &&
+      node build
+      '
+
+volumes:
+  data:
