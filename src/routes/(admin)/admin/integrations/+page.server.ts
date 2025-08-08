@@ -14,10 +14,12 @@ export const load = (async ({ url }) => {
 		url: url.origin,
 		discord: {
 			...Discord,
+			clientID: Discord.clientID ? decryptToString(Buffer.from(Discord.clientID, 'base64')) : '',
 			clientSecret: Discord.clientSecret ? '**********' : ''
 		},
 		github: {
 			...GitHub,
+			clientID: GitHub.clientID ? decryptToString(Buffer.from(GitHub.clientID, 'base64')) : '',
 			clientSecret: GitHub.clientSecret ? '**********' : ''
 		},
 		smtp: {
@@ -33,7 +35,7 @@ export const actions = {
 	discord: async ({ request }) => {
 		const form = await request.formData();
 
-		// Scopes aus String (z.B. "identify email") in Array splitten
+		// Scopes aus String (z.B. "identify,email") in Array splitten
 		const scopesRaw = form.get('scopes');
 		const scopesArray =
 			typeof scopesRaw === 'string'
@@ -47,8 +49,12 @@ export const actions = {
 		const rawData = {
 			setup: true,
 			scopes: scopesArray,
-			clientID: form.get('clientID'),
-			clientSecret: form.get('clientSecret')
+			clientID: Buffer.from(
+				encryptString(getFormString(form.get('clientID'), 'clientID'))
+			).toString('base64'),
+			clientSecret: Buffer.from(
+				encryptString(getFormString(form.get('clientSecret'), 'clientSecret'))
+			).toString('base64')
 		};
 
 		const parseResult = Discord.safeParse(rawData);
@@ -111,8 +117,12 @@ export const actions = {
 		const rawData = {
 			setup: true,
 			scopes: scopesArray,
-			clientID: form.get('clientID'),
-			clientSecret: form.get('clientSecret')
+			clientID: Buffer.from(
+				encryptString(getFormString(form.get('clientID'), 'clientID'))
+			).toString('base64'),
+			clientSecret: Buffer.from(
+				encryptString(getFormString(form.get('clientSecret'), 'clientSecret'))
+			).toString('base64')
 		};
 
 		const parseResult = GitHub.safeParse(rawData);
@@ -310,3 +320,11 @@ export const actions = {
 		};
 	}
 } satisfies Actions;
+
+// Hilfsfunktion für sicheres Auslesen eines Strings aus FormData
+const getFormString = (value: FormDataEntryValue | null, fieldName: string): string => {
+	if (typeof value !== 'string') {
+		throw new Error(`Feld "${fieldName}" fehlt oder ist kein String`);
+	}
+	return value;
+};
