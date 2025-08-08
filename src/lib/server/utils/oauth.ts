@@ -1,5 +1,6 @@
 import { Discord, GitHub } from 'arctic';
 import { settings } from '../store.svelte';
+import { decryptToString } from './encryption';
 
 /**
  * Gibt eine Discord-Instanz mit dynamischer Redirect-URL zurück.
@@ -7,8 +8,8 @@ import { settings } from '../store.svelte';
  */
 export function discord(origin: string) {
 	return new Discord(
-		settings.Discord.clientID,
-		settings.Discord.clientSecret,
+		decryptToString(Buffer.from(settings.Discord.clientID, 'base64')),
+		decryptToString(Buffer.from(settings.Discord.clientSecret, 'base64')),
 		origin + '/login/discord/callback'
 	);
 }
@@ -18,8 +19,8 @@ export function discord(origin: string) {
  */
 export function github(origin: string) {
 	return new GitHub(
-		settings.GitHub.clientID,
-		settings.GitHub.clientSecret,
+		decryptToString(Buffer.from(settings.GitHub.clientID, 'base64')),
+		decryptToString(Buffer.from(settings.GitHub.clientSecret, 'base64')),
 		origin + '/login/github/callback'
 	);
 }
