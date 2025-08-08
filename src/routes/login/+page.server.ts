@@ -12,6 +12,7 @@ import { get2FARedirect } from '$lib/server/utils/2fa';
 
 import type { Actions, PageServerLoad, RequestEvent } from './$types';
 import { settings } from '$lib/server/store.svelte';
+import { getOAuthParams } from '$lib/server/utils/oauth';
 
 export const load: PageServerLoad = async (event) => {
 	if (event.locals.session !== null && event.locals.user !== null) {
@@ -109,7 +110,8 @@ async function action(event: RequestEvent) {
 	}
 	throttler.reset(user.id);
 	const sessionToken = generateSessionToken();
-	const session = await createSession(sessionToken, user.id, false);
+	const { redirect_uri, state } = getOAuthParams(event);
+	const session = await createSession(sessionToken, user.id, false, redirect_uri, state);
 	setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 	if (!user.emailVerified) {
