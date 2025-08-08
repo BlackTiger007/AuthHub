@@ -1,7 +1,9 @@
 <script lang="ts">
+	import Alert from '$lib/components/alert.svelte';
 	import Navbar from '$lib/components/navbarAdmin.svelte';
+	import type { LayoutProps } from './$types';
 
-	let { children } = $props();
+	let { data, children }: LayoutProps = $props();
 </script>
 
 <div class="drawer lg:drawer-open">
@@ -16,6 +18,7 @@
 		<!-- Seiteninhalt -->
 		<div class="flex min-h-screen flex-col">
 			{@render children?.()}
+			<Alert visible={data.smtp} />
 		</div>
 	</div>
 
