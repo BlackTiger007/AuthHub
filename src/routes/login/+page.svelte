@@ -135,6 +135,10 @@
 					<span>Mit GitHub anmelden</span>
 				</a>
 			{/if}
+
+			{#if data.oauthError}
+				<p class="text-error text-sm" aria-live="polite">{data.oauthError}</p>
+			{/if}
 		</div>
 	</div>
 </main>
