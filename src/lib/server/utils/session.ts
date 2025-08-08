@@ -42,7 +42,9 @@ export async function validateSessionToken(token: string): Promise<SessionValida
 		userId: row.session.userId,
 		expiresAt: new Date(row.session.expiresAt.getTime() * 1000),
 		lastActiveAt: new Date(),
-		twoFactorVerified: Boolean(row.session.twoFactorVerified)
+		twoFactorVerified: Boolean(row.session.twoFactorVerified),
+		redirectUrl: row.session.redirectUrl,
+		stateToken: row.session.stateToken
 	};
 
 	const usr: UserAuth = {
@@ -106,26 +108,26 @@ export function generateSessionToken(): string {
 export async function createSession(
 	token: string,
 	userId: string,
-	twoFactorVerified: boolean
+	twoFactorVerified: boolean,
+	redirectUrl: string | null = null,
+	stateToken: string | null = null
 ): Promise<Session> {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 	const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
 
-	await db.insert(session).values({
+	const newSession: Session = {
 		id: sessionId,
 		userId,
 		expiresAt: new Date(Math.floor(expiresAt.getTime() / 1000)),
 		lastActiveAt: new Date(),
-		twoFactorVerified
-	});
-
-	return {
-		id: sessionId,
-		userId,
-		expiresAt,
-		lastActiveAt: new Date(),
-		twoFactorVerified: twoFactorVerified ?? false
+		twoFactorVerified,
+		redirectUrl,
+		stateToken
 	};
+
+	await db.insert(session).values(newSession);
+
+	return newSession;
 }
 
 export async function setSessionAs2FAVerified(sessionId: string): Promise<void> {
