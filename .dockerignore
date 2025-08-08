@@ -1,0 +1,9 @@
+.git
+.github
+.svelte-kit
+.vscode
+/build
+/data
+/node_modules
+.env
+.env.sentry-build-plugin
