@@ -3,7 +3,7 @@
 
 	/**
 	 * Prüft, ob der Navigationspunkt aktiv ist, also ob der aktuelle Pfad genau übereinstimmt
-	 * oder ob es sich um einen Unterpfad handelt (z. B. /admin/users/123).
+	 * oder ob es sich um einen Unterpfad handelt (z. B. /admin/users/123).
 	 */
 	function isActive(path: string): boolean {
 		const current = page.url.pathname + '/';
