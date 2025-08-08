@@ -34,7 +34,12 @@ export const load: PageServerLoad = async (event) => {
 	const github =
 		settings.GitHub.clientID && settings.GitHub.clientSecret && settings.GitHub.scopes.length > 0;
 
-	return { discord, github };
+	const oauthError =
+		event.url.searchParams.get('oauth_error') === 'email_not_linked'
+			? 'Your email is not linked to this OAuth provider. Please link your email first.'
+			: '';
+
+	return { discord, github, oauthError };
 };
 
 const throttler = new Throttler<string>([0, 1, 2, 4, 8, 16, 30, 60, 180, 300]);
