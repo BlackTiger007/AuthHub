@@ -1,9 +1,11 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	const {
 		title,
 		checked = false,
 		children
-	}: { title: string; checked?: boolean; children: () => any } = $props();
+	}: { title: string; checked?: boolean; children: Snippet } = $props();
 </script>
 
 <div class="bg-base-100 border-base-300 collapse h-fit border">
