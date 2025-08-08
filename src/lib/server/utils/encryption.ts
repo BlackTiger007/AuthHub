@@ -1,5 +1,5 @@
 import { decodeBase64 } from '@oslojs/encoding';
-import { createCipheriv, createDecipheriv } from 'crypto';
+import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 import { DynamicBuffer } from '@oslojs/binary';
 
 import { ENCRYPTION_KEY } from '$env/static/private';
@@ -18,10 +18,9 @@ const key = decodeBase64(ENCRYPTION_KEY);
  * @returns Das verschlüsselte Ergebnis inkl. IV und AuthTag
  */
 export function encrypt(data: Uint8Array): Uint8Array {
-	const iv = new Uint8Array(16);
-	crypto.getRandomValues(iv);
-
+	const iv = randomBytes(16);
 	const cipher = createCipheriv('aes-128-gcm', key, iv);
+
 	const encrypted = new DynamicBuffer(0);
 	encrypted.write(iv);
 	encrypted.write(cipher.update(data));
@@ -45,8 +44,8 @@ export function encryptString(data: string): Uint8Array {
  * Entschlüsselt ein zuvor mit `encrypt()` erzeugtes Bytepaket.
  *
  * Erwartet:
- * - Ersten 16 Byte: IV
- * - Letzten 16 Byte: AuthTag
+ * - Erste 16 Byte: IV
+ * - Letzte 16 Byte: AuthTag
  * - Dazwischen: Ciphertext
  *
  * @param encrypted - Das verschlüsselte Bytepaket
