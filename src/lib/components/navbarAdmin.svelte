@@ -48,7 +48,7 @@
 			{/each}
 		{/each}
 
-		<li class="my-3"></li>
+		<li class="mx-0 my-3"></li>
 
 		<li>
 			<a href="/settings">Einstellungen</a>
