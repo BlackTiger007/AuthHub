@@ -1,11 +1,19 @@
 import { decodeBase64 } from '@oslojs/encoding';
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 import { DynamicBuffer } from '@oslojs/binary';
+import { env } from '$env/dynamic/private';
 
-import { ENCRYPTION_KEY } from '$env/static/private';
-
-/** Entschlüsselt das base64-encoded Environment-Key und wandelt ihn in ein Uint8Array um */
-const key = decodeBase64(ENCRYPTION_KEY);
+/**
+ * Holt und dekodiert den Schlüssel aus der ENV-Variable.
+ * Wird bei jedem Aufruf neu aufgelöst (runtime).
+ *
+ * @throws Wenn ENCRYPTION_KEY nicht gesetzt oder ungültig ist
+ */
+function getKey(): Uint8Array {
+	const key = env.ENCRYPTION_KEY;
+	if (!key) throw new Error('ENCRYPTION_KEY is not set');
+	return decodeBase64(key);
+}
 
 /**
  * Verschlüsselt beliebige Binärdaten (z. B. Strings oder JSON) mit AES-128-GCM.
@@ -19,7 +27,7 @@ const key = decodeBase64(ENCRYPTION_KEY);
  */
 export function encrypt(data: Uint8Array): Uint8Array {
 	const iv = randomBytes(16);
-	const cipher = createCipheriv('aes-128-gcm', key, iv);
+	const cipher = createCipheriv('aes-128-gcm', getKey(), iv);
 
 	const encrypted = new DynamicBuffer(0);
 	encrypted.write(iv);
@@ -61,7 +69,7 @@ export function decrypt(encrypted: Uint8Array): Uint8Array {
 	const tag = encrypted.slice(encrypted.byteLength - 16);
 	const payload = encrypted.slice(16, encrypted.byteLength - 16);
 
-	const decipher = createDecipheriv('aes-128-gcm', key, iv);
+	const decipher = createDecipheriv('aes-128-gcm', getKey(), iv);
 	decipher.setAuthTag(tag);
 
 	const decrypted = new DynamicBuffer(0);
