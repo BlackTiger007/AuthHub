@@ -13,15 +13,15 @@ export const Password = z.object({
 export const Discord = z.object({
 	setup: z.boolean().default(false),
 	scopes: z.array(z.enum(discordScopes)).default(['identify', 'email']),
-	clientID: z.string().default(''),
-	clientSecret: z.string().default('')
+	clientID: z.base64().optional().default(undefined),
+	clientSecret: z.base64().optional().default(undefined)
 });
 
 export const GitHub = z.object({
 	setup: z.boolean().default(false),
 	scopes: z.array(z.enum(githubScopes)).default(['user:email']),
-	clientID: z.string().default(''),
-	clientSecret: z.string().default('')
+	clientID: z.base64().optional().default(undefined),
+	clientSecret: z.base64().optional().default(undefined)
 });
 
 // TODO: ist das so nötig und wird alle verwendet?
