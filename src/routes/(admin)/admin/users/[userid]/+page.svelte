@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { Role, RoleLabels } from '$lib/utils/roles';
+	import { Role } from '$lib/utils/roles';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
-
-	const roles = Object.entries(RoleLabels) as unknown as [Role, string][];
 
 	function formatDate(dateString: Date) {
 		const date = new Date(dateString);

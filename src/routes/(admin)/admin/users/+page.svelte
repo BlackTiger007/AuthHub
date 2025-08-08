@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { Role, RoleLabels } from '$lib/utils/roles';
+	import { RoleLabels } from '$lib/utils/roles';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();

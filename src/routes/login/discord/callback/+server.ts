@@ -1,7 +1,7 @@
 import { discord } from '$lib/server/utils/oauth';
 import { ObjectParser } from '@pilcrowjs/object-parser';
 
-import { ArcticFetchError, OAuth2RequestError, type OAuth2Tokens } from 'arctic';
+import { type OAuth2Tokens } from 'arctic';
 import type { RequestEvent } from './$types';
 import { schema } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
