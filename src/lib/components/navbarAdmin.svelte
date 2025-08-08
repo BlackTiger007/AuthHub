@@ -37,9 +37,9 @@
 	<ul class="space-y-1 overflow-auto">
 		<li class="menu-title text-base-content text-2xl">Admin Dashbord</li>
 
-		{#each navItems as section}
+		{#each navItems as section (section.title)}
 			<li class="menu-title">{section.title}</li>
-			{#each section.items as item}
+			{#each section.items as item (item.href)}
 				<li>
 					<a href={item.href} class:bg-base-200={isActive(item.href)}>
 						{item.label}

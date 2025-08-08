@@ -60,21 +60,21 @@
 		>
 			<select class="select select-sm w-full" bind:value={filter.event}>
 				<option value="">Event</option>
-				{#each uniqueValues('event') as value}
+				{#each uniqueValues('event') as value (value)}
 					<option {value}>{value}</option>
 				{/each}
 			</select>
 
 			<select class="select select-sm w-full" bind:value={filter.userId}>
 				<option value="">User ID</option>
-				{#each uniqueValues('userId') as value}
+				{#each uniqueValues('userId') as value (value)}
 					<option {value}>{value}</option>
 				{/each}
 			</select>
 
 			<select class="select select-sm w-full" bind:value={filter.ip}>
 				<option value="">IP-Adresse</option>
-				{#each uniqueValues('ip') as value}
+				{#each uniqueValues('ip') as value (value)}
 					<option {value}>{value}</option>
 				{/each}
 			</select>
@@ -83,7 +83,7 @@
 				<option value="">Datum</option>
 				{#each uniqueValues('createdAt')
 					.map(formatDate)
-					.filter((v, i, a) => a.indexOf(v) === i) as value}
+					.filter((v, i, a) => a.indexOf(v) === i) as value (value)}
 					<option {value}>{value}</option>
 				{/each}
 			</select>

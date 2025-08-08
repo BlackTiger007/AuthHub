@@ -122,7 +122,7 @@
 			Passkeys sind WebAuthn-Zugangsdaten, die Ihre Identität per Gerät bestätigen.
 		</p>
 		<ul class="space-y-3">
-			{#each data.passkeyCredentials as credential}
+			{#each data.passkeyCredentials as credential (credential.id)}
 				<li class="bg-base-200 flex items-center justify-between rounded-md p-3">
 					<p class="font-medium">{credential.name}</p>
 					<form method="post" use:enhance action="?/delete_passkey">
@@ -141,7 +141,7 @@
 			Zwei-Faktor-Authentifizierung verwendet werden.
 		</p>
 		<ul class="space-y-3">
-			{#each data.securityKeyCredentials as credential}
+			{#each data.securityKeyCredentials as credential (credential.id)}
 				<li class="bg-base-200 flex items-center justify-between rounded-md p-3">
 					<p class="font-medium">{credential.name}</p>
 					<form method="post" use:enhance action="?/delete_security_key">

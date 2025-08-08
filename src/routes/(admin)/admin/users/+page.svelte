@@ -56,14 +56,14 @@
 		>
 			<select class="select select-sm w-full" bind:value={filter.username}>
 				<option value="">Benutzer</option>
-				{#each uniqueValues('username') as value}
+				{#each uniqueValues('username') as value (value)}
 					<option {value}>{value}</option>
 				{/each}
 			</select>
 
 			<select class="select select-sm w-full" bind:value={filter.role}>
 				<option value={null}>Rolle</option>
-				{#each uniqueValues('role') as value}
+				{#each uniqueValues('role') as value (value)}
 					<option {value}>{RoleLabels[value]}</option>
 				{/each}
 			</select>
@@ -72,7 +72,7 @@
 				<option value="">Letzte Anmeldung</option>
 				{#each uniqueValues('lastLogin')
 					.map(formatDate)
-					.filter((v, i, a) => a.indexOf(v) === i) as value}
+					.filter((v, i, a) => a.indexOf(v) === i) as value (value)}
 					<option {value}>{value}</option>
 				{/each}
 			</select>
