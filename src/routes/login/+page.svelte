@@ -14,7 +14,8 @@
 	async function passKey() {
 		passkeyErrorMessage = '';
 		try {
-			const challenge = await createChallenge();
+			const challengeRaw = await createChallenge();
+			const challenge = new Uint8Array(challengeRaw);
 
 			const credential = await navigator.credentials.get({
 				publicKey: {
