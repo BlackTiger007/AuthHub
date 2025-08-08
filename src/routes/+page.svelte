@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import Navbar from '$lib/components/navbar.svelte';
 	import type { PageProps } from './$types';
 
